@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -9,12 +10,13 @@ import {
   LogOut,
   ListFilter,
   BookOpen,
-  Brain,
+  Brain, // Brain icon is already imported
   LayoutDashboard,
   Users,
   University,
   BarChart3,
   FileText,
+  Menu // Added Menu icon for mobile trigger
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +31,7 @@ import { Input } from "@/components/ui/input";
 import { AppLogo } from "@/components/shared/app-logo";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; // Added Sheet components
 
 // Mock user data, replace with actual auth state
 const MOCK_USER = {
@@ -58,6 +61,7 @@ const navItems: NavItem[] = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [user, setUser] = useState<typeof MOCK_USER | null>(null);
+  const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   useEffect(() => {
     // Simulate fetching user data
@@ -80,7 +84,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden border-r bg-card md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-16 items-center border-b px-4 lg:px-6">
-            <AppLogo />
+            {/* Replaced AppLogo with AI Recommendations link */}
+            <Link
+              href="/recommendations"
+              className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
+            >
+              <Brain className="h-8 w-auto" />
+              <span className="text-xl font-bold">AI Recommendations</span>
+            </Link>
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -107,11 +118,47 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       </aside>
       <div className="flex flex-col">
         <header className="flex h-16 items-center gap-4 border-b bg-card px-4 lg:px-6">
-          {/* Mobile Nav Trigger - Implement Sheet for mobile nav */}
-          <Button variant="outline" size="icon" className="md:hidden">
-            <Home className="h-5 w-5" /> {/* Replace with Menu icon later */}
-            <span className="sr-only">Toggle navigation menu</span>
-          </Button>
+          <Sheet open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="shrink-0 md:hidden">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle navigation menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="flex flex-col">
+              <nav className="grid gap-2 text-lg font-medium">
+                <div className="flex h-16 items-center border-b px-4 lg:px-6 mb-4">
+                  {user.role === 'student' ? (
+                     <Link
+                        href="/recommendations"
+                        className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
+                        onClick={() => setIsMobileNavOpen(false)}
+                      >
+                        <Brain className="h-8 w-auto" />
+                        <span className="text-xl font-bold">AI Recommendations</span>
+                      </Link>
+                  ) : (
+                    <Link href="/" onClick={() => setIsMobileNavOpen(false)}>
+                      <AppLogo />
+                    </Link>
+                  )}
+                </div>
+                {filteredNavItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground ${
+                      pathname === item.href ? "bg-muted text-foreground" : ""
+                    }`}
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                ))}
+              </nav>
+            </SheetContent>
+          </Sheet>
           <div className="w-full flex-1">
             {/* Optional: Global Search Bar */}
             {/* <form>
@@ -129,7 +176,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={user.avatar} alt={user.name} className="rounded-full h-8 w-8" />
+                <img src={user.avatar} alt={user.name} className="rounded-full h-8 w-8" data-ai-hint="user avatar" />
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
