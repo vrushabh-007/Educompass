@@ -1,4 +1,3 @@
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { UniversityAPIResponse } from '@/lib/types'; 
@@ -9,8 +8,8 @@ export async function GET(request: NextRequest) {
 
   const keyword = searchParams.get('keyword')?.toLowerCase();
   const countryParam = searchParams.get('country');
-  const studyLevelParam = searchParams.get('studyLevel'); // Keep case from client (client sends lowercase for levels)
-  const subjectParam = searchParams.get('subject');   // Keep case from client (client sends TitleCase for subjects)
+  const studyLevelParam = searchParams.get('studyLevel');
+  const subjectParam = searchParams.get('subject');
   const minCGPAStr = searchParams.get('minCGPA');
   const sortBy = searchParams.get('sortBy') || 'worldranking'; 
   const scholarshipsParam = searchParams.get('scholarships');
@@ -31,25 +30,21 @@ export async function GET(request: NextRequest) {
   `);
 
   if (keyword) {
-    // Keyword search applies to name and location (stateprovince).
-    // Specific subject filtering is handled by subjectParam.
     query = query.or(`name.ilike.%${keyword}%,stateprovince.ilike.%${keyword}%`);
   }
 
-  if (countryParam) {
+  if (countryParam && countryParam !== 'Other') { // Assuming 'Other' means no specific country filter
     query = query.eq('country', countryParam);
   }
 
   if (studyLevelParam) {
-    // Use JSON.stringify to correctly quote the value for array containment
-    // e.g. studylevels=cs.{"bachelors"}
-    query = query.cs('studylevels', `{${JSON.stringify(studyLevelParam)}}`); 
+    // Correct usage for array column 'studylevels' containing string 'studyLevelParam'
+    query = query.cs('studylevels', [studyLevelParam]);
   }
   
   if (subjectParam) {
-    // Use JSON.stringify to correctly quote the value, especially if it contains spaces
-    // e.g. subjects=cs.{"Computer Science"}
-    query = query.cs('subjects', `{${JSON.stringify(subjectParam)}}`); 
+    // Correct usage for array column 'subjects' containing string 'subjectParam'
+    query = query.cs('subjects', [subjectParam]);
   }
 
   if (minCGPAStr) {
