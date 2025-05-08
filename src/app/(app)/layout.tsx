@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -128,20 +127,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
                 <div className="flex h-16 items-center border-b px-4 lg:px-6 mb-4">
-                  {user.role === 'student' ? (
-                     <Link
-                        href="/recommendations"
-                        className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
-                        onClick={() => setIsMobileNavOpen(false)}
-                      >
-                        <Brain className="h-8 w-auto" />
-                        <span className="text-xl font-bold">AI Recommendations</span>
-                      </Link>
-                  ) : (
-                    <Link href="/" onClick={() => setIsMobileNavOpen(false)}>
-                      <AppLogo />
-                    </Link>
-                  )}
+                  <Link
+                    href="/recommendations"
+                    className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    <Brain className="h-8 w-auto" />
+                    <span className="text-xl font-bold">AI Recommendations</span>
+                  </Link>
                 </div>
                 {filteredNavItems.map((item) => (
                   <Link
