@@ -1,4 +1,5 @@
 
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -7,25 +8,27 @@ import Link from "next/link";
 import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
 import UniversityLogos from "@/components/landing/university-logos";
-import GlobalRankings from "@/components/landing/GlobalRankings"; // Added import
+import GlobalRankings from "@/components/landing/GlobalRankings";
+import Newsletter from "@/components/landing/Newsletter"; // Added import
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react"; 
+import { useRouter } from "next/navigation";
+
 
 export default function LandingPage() {
   const [searchValue, setSearchValue] = useState(""); 
+  const router = useRouter();
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchValue.trim()) {
-      // TODO: Implement search submission logic, e.g., redirect to search results page
-      // router.push(`/college-search?keyword=${encodeURIComponent(searchValue.trim())}`);
-      console.log("Search submitted:", searchValue);
+      router.push(`/college-search?keyword=${encodeURIComponent(searchValue.trim())}`);
     }
   };
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-[hsl(var(--primary)/0.2)] text-foreground">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/5 text-foreground">
       <header className="py-3 fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="bg-card/90 backdrop-blur-lg rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between">
@@ -62,8 +65,8 @@ export default function LandingPage() {
       </header>
       
       <main className="flex-1 flex flex-col">
-        <section className="w-full flex-grow flex items-center pt-28 sm:pt-32"> 
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="w-full flex-grow flex items-center pt-28 sm:pt-32 px-4 sm:px-6 lg:px-8"> 
+          <div className="container mx-auto">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
               
               <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
@@ -108,6 +111,10 @@ export default function LandingPage() {
         <section className="w-full bg-background">
           <GlobalRankings />
         </section>
+
+        <section className="w-full bg-background">
+          <Newsletter />
+        </section>
       </main>
       <footer className="py-8 text-center text-muted-foreground text-sm border-t border-border">
         © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
@@ -115,3 +122,4 @@ export default function LandingPage() {
     </div>
   );
 }
+
