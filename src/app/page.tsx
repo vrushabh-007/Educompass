@@ -1,35 +1,56 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Search as SearchIcon } from "lucide-react";
 import Link from "next/link";
 import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
-import UniversityLogos from "@/components/landing/university-logos"; // Import the new component
+import UniversityLogos from "@/components/landing/university-logos";
+import { Input } from "@/components/ui/input";
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-[hsl(var(--primary)/0.2)] text-foreground">
-      <header className="h-20 flex items-center fixed top-0 left-0 right-0 z-50 bg-transparent">
-        <div className="container mx-auto flex items-center px-4 sm:px-6 lg:px-8">
-          <AppLogo />
-          <nav className="ml-auto flex gap-4 sm:gap-6">
-            <Link
-              className="text-sm font-medium hover:underline underline-offset-4 text-primary-foreground/80 hover:text-primary-foreground"
-              href="/login"
-            >
-              Login
-            </Link>
-            <Button asChild variant="secondary" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground">
-              <Link href="/register">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </nav>
+      {/* New Floating Header */}
+      <header className="py-3 fixed top-3 left-0 right-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-muted/80 backdrop-blur-lg rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <AppLogo />
+            </div>
+
+            {/* Search Bar - Centered */}
+            <div className="relative mx-2 sm:mx-4 flex-grow max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search colleges, courses..."
+                className="w-full pl-9 pr-3 py-2 h-9 sm:h-10 rounded-full bg-background/70 border-border focus:border-primary text-sm"
+                // TODO: Add onChange, value, and submission logic for search functionality
+              />
+            </div>
+
+            {/* Auth Links */}
+            <nav className="flex items-center gap-1 sm:gap-2">
+              <Button variant="ghost" size="sm" asChild className="rounded-full text-xs sm:text-sm text-foreground/80 hover:text-foreground hover:bg-transparent px-2 sm:px-3">
+                <Link href="/login">
+                  Login
+                </Link>
+              </Button>
+              <Button asChild variant="default" size="sm" className="rounded-full text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground px-3 sm:px-4">
+                <Link href="/register" className="flex items-center">
+                  Get Started
+                  <ArrowRight className="ml-1 sm:ml-1.5 h-3 w-3 sm:h-4 sm:w-4" />
+                </Link>
+              </Button>
+            </nav>
+          </div>
         </div>
       </header>
       
       <main className="flex-1 flex flex-col">
-        <section className="w-full flex-grow flex items-center">
+        {/* Adjusted padding-top to avoid overlap with new fixed header */}
+        {/* Header height approx 2.5rem(input) + 1.5rem(padding) + 0.75rem(top offset) = ~4.75rem. pt-24 (6rem) gives some buffer. */}
+        <section className="w-full flex-grow flex items-center pt-24 sm:pt-28"> 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
               
@@ -68,17 +89,10 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section className="w-full pb-12 md:pb-24 lg:pb-32">
+        <section className="w-full">
            <UniversityLogos />
         </section>
       </main>
-
-      {/* Placeholder for a potential footer */}
-      {/* <footer className="bg-background/50 border-t border-border/20 py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
-          © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
-        </div>
-      </footer> */}
     </div>
   );
 }
