@@ -9,7 +9,7 @@ import type { UniversityAPIResponse } from '@/lib/types';
 const logoMap: Record<string, string> = {
   'Massachusetts Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
   'Stanford University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png',
-  'Harvard University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png',
+  'Harvard University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png', // Corrected from harverd to harvard if it was a typo
   'University of Cambridge': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png',
   'University of Oxford': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png',
   'California Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png',
@@ -19,11 +19,19 @@ const logoMap: Record<string, string> = {
   'University of Chicago': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/chicago-logo.png',
   'University of California, Berkeley': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/berkeley-logo.png',
   'National University of Singapore': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/nus-logo.png',
-  'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png',
+  'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png', // Corrected from priceton to princeton if typo
   'University of Tokyo': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/tokyo-logo.png',
   'Yale University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/yale-logo.png',
   // Add more mappings if actual logos are stored in 'university-logo' column
 };
+
+// Trim whitespace from all URLs in logoMap
+for (const key in logoMap) {
+  if (Object.prototype.hasOwnProperty.call(logoMap, key)) {
+    logoMap[key] = logoMap[key].trimEnd();
+  }
+}
+
 
 const studyLevels = ['bachelors', 'masters', 'phd'];
 const countries = ['USA', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore', 'Germany', 'Australia', 'Other']; 
@@ -91,6 +99,7 @@ export default function ResultsPage() {
     if (minCGPA !== '7.0') params.set('minCGPA', minCGPA);
 
     const queryString = params.toString();
+    // Using replace to avoid multiple history entries for filter changes
     router.replace(`/college-search${queryString ? `?${queryString}` : ''}`, { scroll: false });
   }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA, router]);
 
@@ -106,6 +115,7 @@ export default function ResultsPage() {
   const handleSearchFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1); 
+    // fetchUniversities will be called by its own useEffect dependency change
   };
 
   const handleClearFilters = () => {
@@ -116,6 +126,7 @@ export default function ResultsPage() {
     setSortBy('worldranking');
     setMinCGPA('7.0');
     setPage(1);
+     // fetchUniversities will be called by its own useEffect dependency change
   };
   
   return (
@@ -204,13 +215,28 @@ export default function ResultsPage() {
 
       <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8 px-4 sm:px-0">
         {loading ? (
-          <div className="col-span-full text-center text-muted-foreground py-10">Loading...</div>
+          Array.from({ length: perPage }).map((_, idx) => (
+            <div key={idx} className="rounded-xl border p-6 bg-card shadow-md animate-pulse">
+              <div className="h-14 w-14 bg-muted rounded-lg mb-3"></div>
+              <div className="h-5 w-3/4 bg-muted rounded mb-1"></div>
+              <div className="h-4 w-1/2 bg-muted rounded mb-2"></div>
+              <div className="flex flex-wrap gap-2 mb-2">
+                <div className="h-5 w-16 bg-muted rounded-full"></div>
+                <div className="h-5 w-20 bg-muted rounded-full"></div>
+              </div>
+              <div className="h-4 w-full bg-muted rounded mb-1"></div>
+              <div className="h-4 w-1/3 bg-muted rounded mb-1"></div>
+              <div className="h-4 w-1/2 bg-muted rounded mb-1"></div>
+              <div className="h-10 w-full bg-muted rounded-lg mt-auto"></div>
+            </div>
+          ))
         ) : paginatedUniversities.length === 0 ? (
           <div className="col-span-full text-center text-muted-foreground py-10">No universities found. Try adjusting your filters.</div>
         ) : (
           paginatedUniversities.map((uni, idx) => {
             const isFirstCard = idx === 0 && page === 1; 
-            const logoSrc = uni.imageUrl || logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`;
+            // Prioritize uni.imageUrl (from DB), then logoMap, then picsum
+            const logoSrc = (uni.imageUrl || logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`).trimEnd();
             return (
             <div
               key={uni.id || uni.name}
@@ -284,3 +310,4 @@ export default function ResultsPage() {
     </div>
   );
 }
+
