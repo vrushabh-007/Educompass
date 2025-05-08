@@ -1,235 +1,302 @@
-"use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { CollegeCard } from '@/components/college-card';
-import { CollegeFilters, type CollegeFilterValues } from '@/components/college-filters';
-import { mockColleges } from '@/data/mock-colleges';
-import type { College } from '@/lib/types';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ListFilter, Search, Download, LayoutGrid, List } from 'lucide-react';
-import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+'use client';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image'; // Import next/image
 
-const ITEMS_PER_PAGE = 9;
+const logoMap: Record<string, string> = {
+  'Massachusetts Institute of Technology (MIT)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
+  'Stanford University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png',
+  'Harvard University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png',
+  'University of Cambridge': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png',
+  'University of Oxford': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png',
+  'California Institute of Technology (Caltech)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png', // Added Caltech to map
+  'ETH Zurich': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/eth-logo.png',
+  'University College London (UCL)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/london-logo.png', // Added UCL to map
+  'Imperial College London': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/imperial-logo.png',
+  'University of Chicago': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/chicago-logo.png',
+  'University of California, Berkeley (UCB)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/berkeley-logo.png', // Added UCB to map
+  'National University of Singapore (NUS)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/nus-logo.png',
+  'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png',
+  'University of Tokyo': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/tokyo-logo.png',
+  'Yale University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/yale-logo.png',
+  'Indian Institute of Technology Bombay (IITB)': 'https://picsum.photos/seed/iitb-logo/56/56', // Placeholder for IITB
+  'University of Toronto': 'https://picsum.photos/seed/utoronto-logo/56/56', // Placeholder for UofT
+};
 
-export default function CollegeSearchPage() {
-  const [allColleges] = useState<College[]>(mockColleges);
-  const [filteredColleges, setFilteredColleges] = useState<College[]>(allColleges);
-  const [filters, setFilters] = useState<CollegeFilterValues>({});
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+const studyLevels = ['bachelors', 'masters', 'phd'];
+const countries = ['United States', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore']; // Extended from user's list
+const subjects = [
+  'Engineering', 'Computer Science', 'Business', 'Biology', 'Law', 'Medicine', 'Social Sciences',
+  'Mathematics', 'Arts', 'Humanities', 'Sciences', 'Physics', 'Chemistry', 'Natural Sciences',
+  'Architecture', 'Economics', 'Mechanical Engineering', 'Electrical Engineering', 'Business Analytics', 'Life Sciences',
+];
+
+interface University {
+  id: string;
+  name: string;
+  country: string;
+  location?: string; // was stateprovince
+  studylevels?: string[];
+  subjects?: string[];
+  mincgpa?: number | string | null;
+  scholarships?: boolean;
+  worldranking?: number | null;
+  webpages?: string[];
+  imageUrl?: string; // For card image if available from API response
+  description?: string; // For card
+}
+
+
+export default function ResultsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState(searchParams.get('keyword') || searchParams.get('searchTerm') || '');
+  const [selectedCountry, setSelectedCountry] = useState(searchParams.get('country') || searchParams.get('destination') || '');
+  const [selectedLevel, setSelectedLevel] = useState(searchParams.get('studyLevel') || searchParams.get('educationLevel') || '');
+  const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') || searchParams.get('major') || '');
+  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'worldranking');
+  const [minCGPA, setMinCGPA] = useState(searchParams.get('minCGPA') || searchParams.get('cgpa') || '7.0');
+  const [page, setPage] = useState(1);
+  const [perPage] = useState(6);
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set('keyword', search);
+    if (selectedCountry) params.set('country', selectedCountry);
+    if (selectedLevel) params.set('studyLevel', selectedLevel);
+    if (selectedSubject) params.set('subject', selectedSubject);
+    if (sortBy !== 'worldranking') params.set('sortBy', sortBy);
+    if (minCGPA !== '7.0') params.set('minCGPA', minCGPA);
+
+    const queryString = params.toString();
+    // Using replace to avoid multiple history entries for filter changes.
+    router.replace(`/college-search${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA, router]);
+
 
   useEffect(() => {
-    let result = allColleges;
+    // Initial load of params from URL
+    setSearch(searchParams.get('keyword') || searchParams.get('searchTerm') || '');
+    setSelectedCountry(searchParams.get('country') || searchParams.get('destination') || '');
+    setSelectedLevel(searchParams.get('studyLevel') || searchParams.get('educationLevel') || '');
+    setSelectedSubject(searchParams.get('subject') || searchParams.get('major') || '');
+    setSortBy(searchParams.get('sortBy') || 'worldranking');
+    setMinCGPA(searchParams.get('minCGPA') || searchParams.get('cgpa') || '7.0');
 
-    // Search term filter
-    if (searchTerm) {
-      result = result.filter(college =>
-        college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (college.popularPrograms && college.popularPrograms.some(p => p.toLowerCase().includes(searchTerm.toLowerCase()))) ||
-        college.location.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    async function fetchUniversities() {
+      setLoading(true);
+      const currentParams = new URLSearchParams(window.location.search);
+      // Make sure API call uses current state of filters, not potentially stale closure values
+      const apiParams = new URLSearchParams();
+      if (search) apiParams.set('keyword', search);
+      if (selectedCountry) apiParams.set('country', selectedCountry);
+      if (selectedLevel) apiParams.set('studyLevel', selectedLevel);
+      if (selectedSubject) apiParams.set('subject', selectedSubject);
+      if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); // Only send if not default
+      apiParams.set('sortBy', sortBy);
+      
+      const res = await fetch(`/api/universities?${apiParams.toString()}`);
+      const { data } = await res.json();
+      setUniversities(data || []);
+      setLoading(false);
     }
-    
-    // Apply advanced filters
-    if (filters.countries && filters.countries.length > 0) {
-      result = result.filter(college => filters.countries!.includes(college.country));
-    }
-    if (filters.financialStatus) {
-      // This requires more complex logic depending on how financialStatus is mapped to college data
-      // For now, let's assume a placeholder or simplify
-      // e.g., if (college.financialAidAvailable && filters.financialStatus === 'Low') { /* keep */ }
-    }
-    if (filters.minAcceptanceRate !== undefined) {
-      result = result.filter(college => (college.acceptanceRate || 100) >= filters.minAcceptanceRate!);
-    }
-    if (filters.maxTuition !== undefined) {
-       result = result.filter(college => (college.tuitionFees?.amount || 0) <= filters.maxTuition!);
-    }
-    if (filters.major) {
-      result = result.filter(college => college.popularPrograms?.some(p => p.toLowerCase().includes(filters.major!.toLowerCase())));
-    }
-    if (filters.financialAidAvailable !== undefined) {
-      result = result.filter(college => college.financialAidAvailable === filters.financialAidAvailable);
-    }
+    fetchUniversities();
+  }, [searchParams, search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA]); // Add all filter states to dependency array
 
-    setFilteredColleges(result);
-    setCurrentPage(1); // Reset to first page on filter change
-  }, [allColleges, filters, searchTerm]);
+  // Pagination logic
+  const totalPages = Math.ceil((universities?.length || 0) / perPage);
+  const paginatedUniversities = universities?.slice((page - 1) * perPage, page * perPage) || [];
 
-  const paginatedColleges = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredColleges.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredColleges, currentPage]);
-
-  const totalPages = Math.ceil(filteredColleges.length / ITEMS_PER_PAGE);
-
-  const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+  // Handle search/filter submit
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1); // Reset page on new search
+    // Fetching is handled by useEffect watching filter states
   };
 
-  const handleExport = (format: 'csv' | 'pdf') => {
-    // Placeholder for export functionality
-    alert(`Exporting as ${format}... (Not implemented)`);
-    console.log("Colleges to export:", filteredColleges);
+  // Handle clear filters
+  const handleClearFilters = () => {
+    setSearch('');
+    setSelectedCountry('');
+    setSelectedLevel('');
+    setSelectedSubject('');
+    setSortBy('worldranking');
+    setMinCGPA('7.0');
+    setPage(1);
+    router.push('/college-search', { scroll: false });
   };
-
+  
   return (
-    <div className="container mx-auto py-8 px-4 md:px-0">
-      <div className="mb-8 text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-primary">Explore Colleges</h1>
-        <p className="text-lg text-muted-foreground mt-2">
-          Find the perfect institution that matches your aspirations and qualifications.
-        </p>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-8">
-        {/* Filters Sidebar (Desktop) */}
-        <div className="w-full md:w-1/4 lg:w-1/5 hidden md:block">
-          <CollegeFilters onFilterChange={setFilters} />
-        </div>
-
-        {/* Main Content Area */}
-        <div className="w-full md:w-3/4 lg:w-4/5">
-          <div className="mb-6 p-4 bg-card rounded-lg shadow">
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="relative flex-grow w-full sm:w-auto">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search by college name, program, location..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full"
-                />
-              </div>
-
-              {/* Filters Button (Mobile) */}
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-auto md:hidden">
-                    <ListFilter className="mr-2 h-4 w-4" /> Filters
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle>Filter Colleges</SheetTitle>
-                    <SheetDescription>Refine your search criteria.</SheetDescription>
-                  </SheetHeader>
-                  <div className="py-4">
-                    <CollegeFilters onFilterChange={(newFilters) => {
-                      setFilters(newFilters);
-                      // Potentially close sheet on apply: sheetContext.setOpen(false)
-                    }} />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              <div className="flex gap-2 items-center">
-                <Button variant="ghost" size="icon" onClick={() => setViewMode('grid')} className={viewMode === 'grid' ? 'text-primary bg-muted' : ''}>
-                  <LayoutGrid className="h-5 w-5" />
-                  <span className="sr-only">Grid View</span>
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'text-primary bg-muted' : ''}>
-                  <List className="h-5 w-5" />
-                  <span className="sr-only">List View</span>
-                </Button>
-              </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="w-full sm:w-auto">
-                    <Download className="mr-2 h-4 w-4" /> Export
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Export Options</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => handleExport('csv')}>Export as CSV</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleExport('pdf')}>Export as PDF</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Search Bar & Filters */}
+      <div className="max-w-5xl mx-auto mt-2"> {/* Reduced mt from 8 */}
+        <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4 bg-card rounded-xl shadow p-4">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
+            <input
+              type="text"
+              placeholder="Search university, subject..."
+              className="w-full px-4 py-2 rounded border border-border focus:outline-none focus:border-primary text-foreground bg-input col-span-full sm:col-span-1 md:col-span-1 lg:col-span-2"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <select
+              value={selectedCountry}
+              onChange={e => setSelectedCountry(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-border bg-input text-foreground"
+            >
+              <option value="">All Countries</option>
+              {countries.map(c => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <select
+              value={selectedLevel}
+              onChange={e => setSelectedLevel(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-border bg-input text-foreground"
+            >
+              <option value="">All Levels</option>
+              {studyLevels.map(l => (
+                <option key={l} value={l}>{l.charAt(0).toUpperCase() + l.slice(1)}</option>
+              ))}
+            </select>
+            <select
+              value={selectedSubject}
+              onChange={e => setSelectedSubject(e.target.value)}
+              className="w-full px-3 py-2 rounded border border-border bg-input text-foreground"
+            >
+              <option value="">All Subjects</option>
+              {subjects.map(s => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+            {/* CGPA input removed as it's not used by API currently for filtering
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-muted-foreground">Min CGPA:</label>
+              <input
+                type="number"
+                min="7.0"
+                max="10.0"
+                step="0.1"
+                value={minCGPA}
+                onChange={e => setMinCGPA(e.target.value)}
+                className="w-20 px-2 py-2 rounded border border-border bg-input text-foreground"
+              />
             </div>
+            */}
           </div>
+          <button type="submit" className="w-full md:w-auto mt-3 md:mt-0 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold shadow hover:bg-primary/90 transition">Find it now</button>
+        </form>
 
-          {paginatedColleges.length > 0 ? (
-            <>
-              <div className={`gap-6 ${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-4'}`}>
-                {paginatedColleges.map(college => (
-                  <CollegeCard key={college.id} college={college} />
-                ))}
-              </div>
-
-              {totalPages > 1 && (
-                <Pagination className="mt-8">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handlePageChange(currentPage - 1); }}
-                        className={currentPage === 1 ? "pointer-events-none opacity-50" : undefined}
-                      />
-                    </PaginationItem>
-                    {[...Array(totalPages)].map((_, i) => {
-                      const pageNum = i + 1;
-                      if (totalPages <= 5 || Math.abs(pageNum - currentPage) < 2 || pageNum === 1 || pageNum === totalPages) {
-                        return (
-                          <PaginationItem key={i}>
-                            <PaginationLink
-                              href="#"
-                              onClick={(e) => { e.preventDefault(); handlePageChange(pageNum); }}
-                              isActive={currentPage === pageNum}
-                            >
-                              {pageNum}
-                            </PaginationLink>
-                          </PaginationItem>
-                        );
-                      } else if ( (pageNum === 2 && currentPage > 3) || (pageNum === totalPages -1 && currentPage < totalPages - 2) ) {
-                        return <PaginationEllipsis key={`ellipsis-${pageNum}`} />;
-                      }
-                      return null;
-                    })}
-                    <PaginationItem>
-                      <PaginationNext
-                        href="#"
-                        onClick={(e) => { e.preventDefault(); handlePageChange(currentPage + 1); }}
-                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : undefined}
-                      />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              )}
-            </>
-          ) : (
-            <div className="text-center py-12">
-              <Search className="mx-auto h-16 w-16 text-muted-foreground/50 mb-4" />
-              <h3 className="text-xl font-semibold">No Colleges Found</h3>
-              <p className="text-muted-foreground">
-                Try adjusting your search or filter criteria.
-              </p>
-            </div>
-          )}
+        {/* Filter Row */}
+        <div className="flex flex-wrap items-center gap-4 mt-4">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground text-sm">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="px-2 py-1 rounded border border-border text-sm bg-input text-foreground"
+            >
+              <option value="worldranking">World Ranking</option>
+              <option value="name">Name</option>
+              {/* <option value="mincgpa">Min CGPA</option> */} {/* CGPA sort removed */}
+            </select>
+          </div>
+          <button 
+            className="ml-auto text-sm text-primary underline hover:text-primary/90" 
+            onClick={handleClearFilters}
+          >
+            Clear all
+          </button>
         </div>
       </div>
+
+      {/* Results Count */}
+      <div className="max-w-5xl mx-auto mt-6 mb-2 text-muted-foreground text-sm font-semibold">
+        {universities?.length || 0} universities found
+      </div>
+
+      {/* Results Grid */}
+      <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+        {loading ? (
+          <div className="col-span-full text-center text-muted-foreground py-10">Loading...</div>
+        ) : paginatedUniversities.length === 0 ? (
+          <div className="col-span-full text-center text-muted-foreground py-10">No universities found. Try adjusting your filters.</div>
+        ) : (
+          paginatedUniversities.map((uni, idx) => {
+            const isFirstCard = idx === 0 && page === 1; // Highlight only the very first card on the first page
+            const logoSrc = logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`;
+            return (
+            <div
+              key={uni.id || uni.name}
+              className={`rounded-xl border p-6 flex flex-col items-start shadow-md transition relative bg-card ${isFirstCard ? 'border-primary shadow-lg' : 'border-border'}`}
+            >
+              <Image
+                src={logoSrc}
+                alt={uni.name + ' logo'}
+                width={56}
+                height={56}
+                className="object-contain mb-3 rounded-lg bg-muted"
+                data-ai-hint="university logo"
+              />
+              <h2 className={`text-lg font-bold mb-1 ${isFirstCard ? 'text-primary' : 'text-primary'}`}>{uni.name}</h2>
+              <div className={`mb-2 text-sm ${isFirstCard ? 'text-foreground/80' : 'text-muted-foreground'}`}>{uni.country}{uni.location ? `, ${uni.location}` : ''}</div>
+              
+              {uni.studylevels && uni.studylevels.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {uni.studylevels.map((level: string) => (
+                    <span key={level} className={`px-2 py-0.5 rounded-full text-xs font-semibold ${isFirstCard ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-accent/10 text-accent border border-accent/20'}`}>{level}</span>
+                  ))}
+                </div>
+              )}
+              {uni.subjects && uni.subjects.length > 0 && (
+                 <div className="flex flex-wrap gap-1 mb-2">
+                    {uni.subjects.slice(0, 3).map((subj: string) => ( // Limit displayed subjects
+                    <span key={subj} className={`px-1.5 py-0.5 rounded-full text-xs ${isFirstCard ? 'bg-muted text-foreground/80' : 'bg-secondary text-secondary-foreground'}`}>{subj}</span>
+                    ))}
+                 </div>
+              )}
+
+              {uni.mincgpa && <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Min CGPA: <span className="font-semibold">{uni.mincgpa}</span></div>}
+              
+              <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Scholarships: <span className={uni.scholarships ? 'text-accent font-semibold' : 'text-destructive font-semibold'}>{uni.scholarships ? 'Available' : 'Not Available'}</span></div>
+              
+              {uni.worldranking && (
+                <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>World Ranking: <span className="font-semibold">#{uni.worldranking}</span></div>
+              )}
+              {uni.webpages && uni.webpages.length > 0 && (
+                <Link
+                  href={uni.webpages[0]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`mt-auto pt-3 px-4 py-2 rounded-lg font-semibold transition text-center w-full ${isFirstCard ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
+                >
+                  Visit Website
+                </Link>
+              )}
+            </div>
+          )})
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mt-8 mb-12">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
+            <button
+              key={num}
+              className={`w-8 h-8 rounded-full flex items-center justify-center font-semibold text-sm border transition ${page === num ? 'bg-primary text-primary-foreground border-primary' : 'bg-card text-primary border-border hover:bg-muted'}`}
+              onClick={() => setPage(num)}
+            >
+              {num}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
