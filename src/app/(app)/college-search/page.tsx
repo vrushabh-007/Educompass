@@ -5,6 +5,8 @@ import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image'; 
 import type { UniversityAPIResponse } from '@/lib/types'; 
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 const logoMap: Record<string, string> = {
   'Massachusetts Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
@@ -54,6 +56,7 @@ export default function ResultsPage() {
   const [selectedSubject, setSelectedSubject] = useState(() => searchParams.get('subject') || searchParams.get('major') || '');
   const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'worldranking');
   const [minCGPA, setMinCGPA] = useState(() => searchParams.get('minCGPA') || searchParams.get('cgpa') || '7.0');
+  const [includeScholarships, setIncludeScholarships] = useState(() => searchParams.get('scholarships') === 'true');
 
   const [page, setPage] = useState(1);
   const perPage = 6;
@@ -66,6 +69,7 @@ export default function ResultsPage() {
     if (selectedLevel) apiParams.set('studyLevel', selectedLevel);
     if (selectedSubject) apiParams.set('subject', selectedSubject);
     if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); 
+    if (includeScholarships) apiParams.set('scholarships', 'true');
     apiParams.set('sortBy', sortBy);
     
     try {
@@ -83,7 +87,7 @@ export default function ResultsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA]);
+  }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA, includeScholarships]);
 
   useEffect(() => {
     fetchUniversities();
@@ -97,11 +101,13 @@ export default function ResultsPage() {
     if (selectedSubject) params.set('subject', selectedSubject);
     if (sortBy !== 'worldranking') params.set('sortBy', sortBy);
     if (minCGPA !== '7.0') params.set('minCGPA', minCGPA);
+    if (includeScholarships) params.set('scholarships', 'true');
+
 
     const queryString = params.toString();
     // Using replace to avoid multiple history entries for filter changes
     router.replace(`/college-search${queryString ? `?${queryString}` : ''}`, { scroll: false });
-  }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA, router]);
+  }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA, includeScholarships, router]);
 
   const paginatedUniversities = useMemo(() => {
     const startIndex = (page - 1) * perPage;
@@ -125,6 +131,7 @@ export default function ResultsPage() {
     setSelectedSubject('');
     setSortBy('worldranking');
     setMinCGPA('7.0');
+    setIncludeScholarships(false);
     setPage(1);
      // fetchUniversities will be called by its own useEffect dependency change
   };
@@ -172,8 +179,9 @@ export default function ResultsPage() {
               ))}
             </select>
             <div className="flex items-center gap-2 col-span-full sm:col-span-1 md:col-span-1 lg:col-span-1">
-              <label className="text-sm text-muted-foreground whitespace-nowrap">Min CGPA:</label>
+              <label htmlFor="minCGPAInput" className="text-sm text-muted-foreground whitespace-nowrap">Min CGPA:</label>
               <input
+                id="minCGPAInput"
                 type="number"
                 min="0" 
                 max="10.0" 
@@ -182,6 +190,15 @@ export default function ResultsPage() {
                 onChange={e => setMinCGPA(e.target.value)}
                 className="w-20 px-2 py-2 rounded border border-border bg-input text-foreground"
               />
+            </div>
+             <div className="flex items-center gap-2 col-span-full sm:col-span-1 md:col-span-1 lg:col-span-1 justify-self-start">
+              <Checkbox
+                id="includeScholarships"
+                checked={includeScholarships}
+                onCheckedChange={(checked) => setIncludeScholarships(checked as boolean)}
+                className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              />
+              <Label htmlFor="includeScholarships" className="text-sm text-muted-foreground whitespace-nowrap">Scholarships?</Label>
             </div>
           </div>
           <button type="submit" className="w-full md:w-auto mt-3 md:mt-0 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold shadow hover:bg-primary/90 transition">Find it now</button>

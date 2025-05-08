@@ -9,10 +9,11 @@ export async function GET(request: NextRequest) {
 
   const keyword = searchParams.get('keyword')?.toLowerCase();
   const countryParam = searchParams.get('country');
-  const studyLevelParam = searchParams.get('studyLevel')?.toLowerCase();
-  const subjectParam = searchParams.get('subject')?.toLowerCase();
+  const studyLevelParam = searchParams.get('studyLevel'); // Keep case from client (client sends lowercase for levels)
+  const subjectParam = searchParams.get('subject');   // Keep case from client (client sends TitleCase for subjects)
   const minCGPAStr = searchParams.get('minCGPA');
   const sortBy = searchParams.get('sortBy') || 'worldranking'; 
+  const scholarshipsParam = searchParams.get('scholarships');
 
   // Start building the query
   let query = supabase.from('University').select(`
@@ -30,8 +31,9 @@ export async function GET(request: NextRequest) {
   `);
 
   if (keyword) {
-    // Assuming 'stateprovince' is the column for location in your DB
-    query = query.or(`name.ilike.%${keyword}%,stateprovince.ilike.%${keyword}%,subjects.cs.{${keyword}}`);
+    // Keyword search applies to name and location (stateprovince).
+    // Specific subject filtering is handled by subjectParam.
+    query = query.or(`name.ilike.%${keyword}%,stateprovince.ilike.%${keyword}%`);
   }
 
   if (countryParam) {
@@ -39,11 +41,15 @@ export async function GET(request: NextRequest) {
   }
 
   if (studyLevelParam) {
-    query = query.cs('studylevels', `{${studyLevelParam}}`); 
+    // Use JSON.stringify to correctly quote the value for array containment
+    // e.g. studylevels=cs.{"bachelors"}
+    query = query.cs('studylevels', `{${JSON.stringify(studyLevelParam)}}`); 
   }
   
   if (subjectParam) {
-    query = query.cs('subjects', `{${subjectParam}}`); 
+    // Use JSON.stringify to correctly quote the value, especially if it contains spaces
+    // e.g. subjects=cs.{"Computer Science"}
+    query = query.cs('subjects', `{${JSON.stringify(subjectParam)}}`); 
   }
 
   if (minCGPAStr) {
@@ -51,6 +57,10 @@ export async function GET(request: NextRequest) {
     if (!isNaN(minCGPA)) {
       query = query.gte('mincgpa', minCGPA);
     }
+  }
+
+  if (scholarshipsParam === 'true') {
+    query = query.is('scholarships', true);
   }
 
   if (sortBy === 'name') {
@@ -79,26 +89,24 @@ export async function GET(request: NextRequest) {
     id: String(uni.id),
     name: uni.name,
     country: uni.country,
-    location: uni.stateprovince, // Mapped from uni.stateprovince
+    location: uni.stateprovince, 
     studylevels: uni.studylevels || [], 
     subjects: uni.subjects || [], 
     mincgpa: uni.mincgpa,
     scholarships: uni.scholarships ?? false,
     worldranking: uni.worldranking, 
-    webpages: uni.webpages || [], // Supabase _text can be null
-    imageUrl: uni["university-logo"], // Mapped from uni.university-logo
-    // Fields not in the provided schema image are removed or set to undefined if they were previously expected
-    description: undefined, // Not in schema image
-    acceptanceRate: undefined, // Not in schema image
-    tuitionFees: undefined, // Not in schema image
-    admissionDeadline: undefined, // Not in schema image
-    ranking_description: undefined, // Not in schema image
-    financialAidAvailable: uni.scholarships ?? false, // Mapped from uni.scholarships
-    popularPrograms: uni.subjects || [], // Mapped from uni.subjects
-    campusLife: undefined, // Not in schema image
-    requiredExams: undefined, // Not in schema image
+    webpages: uni.webpages || [], 
+    imageUrl: uni["university-logo"], 
+    description: undefined, 
+    acceptanceRate: undefined, 
+    tuitionFees: undefined, 
+    admissionDeadline: undefined, 
+    ranking_description: undefined, 
+    financialAidAvailable: uni.scholarships ?? false, 
+    popularPrograms: uni.subjects || [], 
+    campusLife: undefined, 
+    requiredExams: undefined, 
   }));
 
   return NextResponse.json({ data: transformedData });
 }
-
