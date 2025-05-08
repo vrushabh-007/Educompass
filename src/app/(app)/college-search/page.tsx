@@ -22,8 +22,7 @@ const logoMap: Record<string, string> = {
   'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png',
   'University of Tokyo': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/tokyo-logo.png',
   'Yale University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/yale-logo.png',
-  'Indian Institute of Technology Bombay': 'https://picsum.photos/seed/iitb-logo/56/56',
-  'University of Toronto': 'https://picsum.photos/seed/utoronto-logo/56/56',
+  // Add more mappings if actual logos are stored in 'university-logo' column
 };
 
 const studyLevels = ['bachelors', 'masters', 'phd'];
@@ -58,7 +57,7 @@ export default function ResultsPage() {
     if (selectedCountry) apiParams.set('country', selectedCountry);
     if (selectedLevel) apiParams.set('studyLevel', selectedLevel);
     if (selectedSubject) apiParams.set('subject', selectedSubject);
-    if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); // Only send if not default
+    if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); 
     apiParams.set('sortBy', sortBy);
     
     try {
@@ -107,7 +106,6 @@ export default function ResultsPage() {
   const handleSearchFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(1); 
-    // fetchUniversities is called by its own useEffect when filter states change
   };
 
   const handleClearFilters = () => {
@@ -118,7 +116,6 @@ export default function ResultsPage() {
     setSortBy('worldranking');
     setMinCGPA('7.0');
     setPage(1);
-    // URL update is handled by the effect watching these state changes
   };
   
   return (
@@ -253,12 +250,11 @@ export default function ResultsPage() {
               {uni.worldranking != null && (
                 <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>World Ranking: <span className="font-semibold">#{uni.worldranking}</span></div>
               )}
-               {uni.ranking_description && (
+               {uni.ranking_description && ( // This field might not be available anymore based on schema
                  <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Ranking: <span className="font-semibold">{uni.ranking_description}</span></div>
               )}
               {uni.webpages && uni.webpages.length > 0 && (
                 <Link
-                  // Ensure URL is absolute
                   href={uni.webpages[0].startsWith('http') ? uni.webpages[0] : `https://${uni.webpages[0]}`}
                   target="_blank"
                   rel="noopener noreferrer"

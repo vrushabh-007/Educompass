@@ -12,35 +12,26 @@ export async function GET(request: NextRequest) {
   const studyLevelParam = searchParams.get('studyLevel')?.toLowerCase();
   const subjectParam = searchParams.get('subject')?.toLowerCase();
   const minCGPAStr = searchParams.get('minCGPA');
-  const sortBy = searchParams.get('sortBy') || 'world_ranking'; 
+  const sortBy = searchParams.get('sortBy') || 'worldranking'; 
 
   // Start building the query
   let query = supabase.from('University').select(`
     id,
     name,
     country,
-    city, -- Changed from location
-    study_levels, 
-    popular_programs,
-    min_cgpa,
-    financial_aid_available,
-    world_ranking,
-    website,
-    image_url,
-    description,
-    acceptance_rate,
-    tuition_fees_amount,
-    tuition_fees_currency,
-    tuition_fees_period,
-    admission_deadline,
-    ranking_description,
-    campus_life,
-    required_exams
+    stateprovince,
+    studylevels, 
+    subjects,
+    mincgpa,
+    scholarships,
+    worldranking,
+    webpages,
+    "university-logo"
   `);
 
   if (keyword) {
-    // Assuming 'city' is the column for location in your DB
-    query = query.or(`name.ilike.%${keyword}%,description.ilike.%${keyword}%,city.ilike.%${keyword}%`);
+    // Assuming 'stateprovince' is the column for location in your DB
+    query = query.or(`name.ilike.%${keyword}%,stateprovince.ilike.%${keyword}%,subjects.cs.{${keyword}}`);
   }
 
   if (countryParam) {
@@ -48,29 +39,29 @@ export async function GET(request: NextRequest) {
   }
 
   if (studyLevelParam) {
-    query = query.cs('study_levels', `{${studyLevelParam}}`); 
+    query = query.cs('studylevels', `{${studyLevelParam}}`); 
   }
   
   if (subjectParam) {
-    query = query.cs('popular_programs', `{${subjectParam}}`); 
+    query = query.cs('subjects', `{${subjectParam}}`); 
   }
 
   if (minCGPAStr) {
     const minCGPA = parseFloat(minCGPAStr);
     if (!isNaN(minCGPA)) {
-      query = query.gte('min_cgpa', minCGPA);
+      query = query.gte('mincgpa', minCGPA);
     }
   }
 
   if (sortBy === 'name') {
     query = query.order('name', { ascending: true });
-  } else if (sortBy === 'worldranking' || sortBy === 'world_ranking') { 
-    query = query.order('world_ranking', { ascending: true, nullsFirst: false });
-  } else if (sortBy === 'mincgpa' || sortBy === 'min_cgpa') {
-    query = query.order('min_cgpa', { ascending: true, nullsFirst: false });
+  } else if (sortBy === 'worldranking') { 
+    query = query.order('worldranking', { ascending: true, nullsFirst: false });
+  } else if (sortBy === 'mincgpa') {
+    query = query.order('mincgpa', { ascending: true, nullsFirst: false });
   } else {
-    // Default sort by world_ranking
-    query = query.order('world_ranking', { ascending: true, nullsFirst: false });
+    // Default sort by worldranking
+    query = query.order('worldranking', { ascending: true, nullsFirst: false });
   }
   
   const { data: universities, error } = await query;
@@ -88,27 +79,24 @@ export async function GET(request: NextRequest) {
     id: String(uni.id),
     name: uni.name,
     country: uni.country,
-    location: uni.city, // Mapped from uni.city
-    studylevels: uni.study_levels || [], 
-    subjects: uni.popular_programs || [], 
-    mincgpa: uni.min_cgpa,
-    scholarships: uni.financial_aid_available ?? false,
-    worldranking: uni.world_ranking, 
-    webpages: uni.website ? [uni.website] : [],
-    imageUrl: uni.image_url,
-    description: uni.description,
-    acceptanceRate: uni.acceptance_rate,
-    tuitionFees: uni.tuition_fees_amount && uni.tuition_fees_currency && uni.tuition_fees_period ? {
-        amount: uni.tuition_fees_amount,
-        currency: uni.tuition_fees_currency,
-        period: uni.tuition_fees_period as 'annual' | 'semester' | 'total',
-    } : undefined,
-    admissionDeadline: uni.admission_deadline,
-    ranking_description: uni.ranking_description,
-    financialAidAvailable: uni.financial_aid_available,
-    popularPrograms: uni.popular_programs,
-    campusLife: uni.campus_life,
-    requiredExams: uni.required_exams,
+    location: uni.stateprovince, // Mapped from uni.stateprovince
+    studylevels: uni.studylevels || [], 
+    subjects: uni.subjects || [], 
+    mincgpa: uni.mincgpa,
+    scholarships: uni.scholarships ?? false,
+    worldranking: uni.worldranking, 
+    webpages: uni.webpages || [], // Supabase _text can be null
+    imageUrl: uni["university-logo"], // Mapped from uni.university-logo
+    // Fields not in the provided schema image are removed or set to undefined if they were previously expected
+    description: undefined, // Not in schema image
+    acceptanceRate: undefined, // Not in schema image
+    tuitionFees: undefined, // Not in schema image
+    admissionDeadline: undefined, // Not in schema image
+    ranking_description: undefined, // Not in schema image
+    financialAidAvailable: uni.scholarships ?? false, // Mapped from uni.scholarships
+    popularPrograms: uni.subjects || [], // Mapped from uni.subjects
+    campusLife: undefined, // Not in schema image
+    requiredExams: undefined, // Not in schema image
   }));
 
   return NextResponse.json({ data: transformedData });
