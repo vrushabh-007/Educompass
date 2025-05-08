@@ -22,7 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { CollegeCard } from '@/components/college-card';
 import { COUNTRIES, FINANCIAL_STATUS_OPTIONS, MAJORS_SAMPLE, EXAM_OPTIONS } from "@/lib/constants";
 import type { AIRecommendationInput, AIRecommendedCollege, College } from "@/lib/types"; // Assuming College type is also needed for mapping
