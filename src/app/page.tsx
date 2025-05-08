@@ -4,12 +4,13 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
+import UniversityLogos from "@/components/landing/university-logos"; // Import the new component
 
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-[hsl(var(--primary)/0.2)] text-foreground">
       <header className="h-20 flex items-center fixed top-0 left-0 right-0 z-50 bg-transparent">
-        <div className="container mx-auto flex items-center px-4 sm:px-6 lg:px-8"> {/* Container for horizontal padding and alignment */}
+        <div className="container mx-auto flex items-center px-4 sm:px-6 lg:px-8">
           <AppLogo />
           <nav className="ml-auto flex gap-4 sm:gap-6">
             <Link
@@ -27,9 +28,9 @@ export default function LandingPage() {
         </div>
       </header>
       
-      <main className="flex-1 flex items-center pt-20">
-        <section className="w-full">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8"> {/* Container for horizontal padding of the section content */}
+      <main className="flex-1 flex flex-col">
+        <section className="w-full flex-grow flex items-center">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
               
               <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
@@ -52,7 +53,7 @@ export default function LandingPage() {
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground py-7 px-8 text-lg">
-                    <Link href="#how-it-works"> {/* Placeholder link */}
+                    <Link href="#how-it-works"> 
                       How It Works
                     </Link>
                   </Button>
@@ -66,7 +67,18 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+        
+        <section className="w-full pb-12 md:pb-24 lg:pb-32">
+           <UniversityLogos />
+        </section>
       </main>
+
+      {/* Placeholder for a potential footer */}
+      {/* <footer className="bg-background/50 border-t border-border/20 py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center text-muted-foreground">
+          © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
+        </div>
+      </footer> */}
     </div>
   );
 }
