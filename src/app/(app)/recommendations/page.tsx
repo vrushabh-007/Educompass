@@ -206,7 +206,7 @@ export default function RecommendationsPage() {
                     <FormField control={form.control} name="examResults.gre" render={({ field }) => (
                       <FormItem><FormLabel>GRE Score (Total)</FormLabel>
                       <FormControl>
-                          <Input type="number" placeholder="e.g., 320" {...field} onChange={handleNumericInputChange(field.onChange)} />
+                          <Input type="number" placeholder="e.g., 320" value={field.value ?? ""} {...field} onChange={handleNumericInputChange(field.onChange)} />
                       </FormControl><FormMessage /></FormItem>
                     )} />
                   )}
@@ -214,7 +214,7 @@ export default function RecommendationsPage() {
                     <FormField control={form.control} name="examResults.gmat" render={({ field }) => (
                       <FormItem><FormLabel>GMAT Score (Total)</FormLabel>
                       <FormControl>
-                          <Input type="number" placeholder="e.g., 700" {...field} onChange={handleNumericInputChange(field.onChange)} />
+                          <Input type="number" placeholder="e.g., 700" value={field.value ?? ""} {...field} onChange={handleNumericInputChange(field.onChange)} />
                       </FormControl><FormMessage /></FormItem>
                     )} />
                   )}
@@ -222,7 +222,7 @@ export default function RecommendationsPage() {
                     <FormField control={form.control} name="examResults.toefl" render={({ field }) => (
                       <FormItem><FormLabel>TOEFL Score (Total)</FormLabel>
                       <FormControl>
-                          <Input type="number" placeholder="e.g., 100" {...field} onChange={handleNumericInputChange(field.onChange)} />
+                          <Input type="number" placeholder="e.g., 100" value={field.value ?? ""} {...field} onChange={handleNumericInputChange(field.onChange)} />
                       </FormControl><FormMessage /></FormItem>
                     )} />
                   )}
