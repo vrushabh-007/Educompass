@@ -1,12 +1,18 @@
-export const COUNTRIES = [
-  { value: "India", label: "India" },
-  { value: "USA", label: "United States" },
-  { value: "Canada", label: "Canada" },
-  { value: "UK", label: "United Kingdom" },
-  { value: "Australia", label: "Australia" },
-  { value: "Germany", label: "Germany" },
-  { value: "Other", label: "Other" },
+
+export const EDUCATION_LEVELS = [
+  { value: "bachelors", label: "Bachelors" },
+  { value: "masters", label: "Masters" },
+  { value: "phd", label: "PhD" },
+  // { value: "other", label: "Other Levels" } // Can be added if 'other' is a valid filter
 ];
+
+const countryNames = ['USA', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore', 'Germany', 'Australia', 'Other'];
+export const COUNTRIES = countryNames.map(country => ({
+  value: country,
+  // Provide more user-friendly labels if desired, e.g., 'United States' for 'USA'
+  label: country === 'USA' ? 'United States' : country === 'UK' ? 'United Kingdom' : country 
+}));
+
 
 export const FINANCIAL_STATUS_OPTIONS = [
   { value: "Low", label: "Low" },
@@ -15,15 +21,10 @@ export const FINANCIAL_STATUS_OPTIONS = [
   { value: "Scholarship-dependent", label: "Scholarship-dependent" },
 ];
 
-export const EDUCATION_LEVELS = [
-  { value: "10th", label: "After 10th" },
-  { value: "12th", label: "After 12th / High School" },
-  { value: "Graduation", label: "After Graduation" },
-  { value: "Post-graduation", label: "After Post-graduation" },
-];
-
 export const EXAM_OPTIONS = ['GRE', 'GMAT', 'TOEFL', 'IELTS', 'SAT', 'ACT'];
 
 export const MAJORS_SAMPLE = [
-  "Computer Science", "Mechanical Engineering", "Electrical Engineering", "Business Administration", "Psychology", "Biology", "Economics", "Fine Arts", "Medicine"
+  'Engineering', 'Computer Science', 'Business', 'Biology', 'Law', 'Medicine', 'Social Sciences',
+  'Mathematics', 'Arts', 'Humanities', 'Sciences', 'Physics', 'Chemistry', 'Natural Sciences',
+  'Architecture', 'Economics', 'Mechanical Engineering', 'Electrical Engineering', 'Business Analytics', 'Life Sciences',
 ];

@@ -54,13 +54,11 @@ export function HeroSearchForm() {
 
   function onSubmit(values: HeroSearchFormValues) {
     console.log("Hero search form submitted:", values);
-    // For now, redirect to college search page with some query params
-    // In a real app, this might trigger a more specific search or API call
     const queryParams = new URLSearchParams();
-    if (values.studyLevel) queryParams.set("educationLevel", values.studyLevel);
+    if (values.studyLevel) queryParams.set("studyLevel", values.studyLevel); // Updated from educationLevel
     if (values.destination) queryParams.set("country", values.destination);
-    if (values.subject) queryParams.set("major", values.subject);
-    if (values.cgpa) queryParams.set("minCgpa", values.cgpa.toString());
+    if (values.subject) queryParams.set("subject", values.subject); // Updated from major
+    if (values.cgpa) queryParams.set("minCGPA", values.cgpa.toString()); // Correctly using minCGPA as per college-search
     if (values.includeScholarships) queryParams.set("scholarships", "true");
     
     router.push(`/college-search?${queryParams.toString()}`);
