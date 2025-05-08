@@ -1,4 +1,6 @@
 
+"use client"; // Add this at the top if not already present for client-side hooks
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Search as SearchIcon } from "lucide-react";
 import Link from "next/link";
@@ -6,14 +8,17 @@ import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
 import UniversityLogos from "@/components/landing/university-logos";
 import { Input } from "@/components/ui/input";
+import React, { useState } from "react"; // Import useState
 
 export default function LandingPage() {
+  const [searchValue, setSearchValue] = useState(""); // State for the search input
+
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-[hsl(var(--primary)/0.2)] text-foreground">
       {/* New Floating Header */}
-      <header className="py-3 fixed top-3 left-0 right-0 z-50">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-muted/80 backdrop-blur-lg rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between">
+      <header className="py-3 fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto">
+          <div className="bg-card/90 backdrop-blur-lg rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between">
             <div className="flex items-center">
               <AppLogo />
             </div>
@@ -24,8 +29,10 @@ export default function LandingPage() {
               <Input
                 type="search"
                 placeholder="Search colleges, courses..."
-                className="w-full pl-9 pr-3 py-2 h-9 sm:h-10 rounded-full bg-background/70 border-border focus:border-primary text-sm"
-                // TODO: Add onChange, value, and submission logic for search functionality
+                className="w-full pl-9 pr-3 py-2 h-9 sm:h-10 rounded-full bg-input border-border focus:border-primary text-sm"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                // TODO: Add submission logic for search functionality
               />
             </div>
 
@@ -50,30 +57,30 @@ export default function LandingPage() {
       <main className="flex-1 flex flex-col">
         {/* Adjusted padding-top to avoid overlap with new fixed header */}
         {/* Header height approx 2.5rem(input) + 1.5rem(padding) + 0.75rem(top offset) = ~4.75rem. pt-24 (6rem) gives some buffer. */}
-        <section className="w-full flex-grow flex items-center pt-24 sm:pt-28"> 
+        <section className="w-full flex-grow flex items-center pt-28 pb-12 sm:pt-32 sm:pb-16"> 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
               
               <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
                 <div className="space-y-3">
-                  <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-primary-foreground">
+                  <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-foreground">
                     EDUCOMPASS
                   </h1>
-                  <p className="text-2xl md:text-3xl text-primary-foreground/90">
+                  <p className="text-2xl md:text-3xl text-foreground/90">
                     Simple. Smart. <span className="text-accent">Seamless.</span>
                   </p>
-                  <p className="max-w-[600px] text-primary-foreground/70 md:text-xl mx-auto lg:mx-0">
+                  <p className="max-w-[600px] text-foreground/70 md:text-xl mx-auto lg:mx-0">
                     Discover your perfect university match from over 10,000+
                     programs worldwide. Let us guide your educational journey.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 min-[400px]:flex-row lg:justify-start justify-center">
-                  <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground py-7 px-8 text-lg">
+                  <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground py-7 px-8 text-lg shadow-lg hover:shadow-primary/50 transition-shadow">
                     <Link href="/college-search">
                       Explore Universities
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild className="border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground py-7 px-8 text-lg">
+                  <Button size="lg" variant="outline" asChild className="border-foreground/30 hover:bg-foreground/10 text-foreground py-7 px-8 text-lg shadow-md hover:shadow-lg transition-shadow">
                     <Link href="#how-it-works"> 
                       How It Works
                     </Link>
@@ -89,10 +96,14 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section className="w-full">
+        <section id="how-it-works" className="w-full py-12 sm:py-16 bg-muted/30">
            <UniversityLogos />
         </section>
       </main>
+      <footer className="py-8 text-center text-muted-foreground text-sm border-t border-border">
+        © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
+      </footer>
     </div>
   );
 }
+
