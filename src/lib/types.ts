@@ -1,29 +1,30 @@
+
 export interface College {
   id: string;
   name: string;
   location: string;
-  country: 'India' | 'USA' | 'Canada' | 'UK' | 'Australia' | 'Germany' | 'Other';
+  country: string; 
   description: string;
   imageUrl?: string;
-  acceptanceRate?: number; // Percentage
+  acceptanceRate?: number; 
   tuitionFees?: {
     amount: number;
     currency: string;
-    period: 'annual' | 'semester' | 'total';
+    period: string; 
   };
   financialAidAvailable?: boolean;
   popularPrograms?: string[];
-  ranking?: string; // e.g., "Top 10 in Engineering"
+  ranking?: string; 
   campusLife?: string;
   website?: string;
   admissionDeadline?: string; 
-  requiredExams?: ('GRE' | 'GMAT' | 'TOEFL' | 'IELTS' | 'SAT' | 'ACT')[];
+  requiredExams?: string[]; 
 }
 
 export interface StudentAcademicScores {
-  cgpa?: number; // e.g., out of 4.0 or 10.0
-  cgpaScale?: number; // 4 or 10
-  percentage?: number; // e.g., out of 100
+  cgpa?: number; 
+  cgpaScale?: number;
+  percentage?: number;
 }
 
 export interface StudentExamResults {
@@ -40,24 +41,24 @@ export interface StudentExamResults {
     ir?: number;
     total?: number;
   };
-  toefl?: number; // Total score
-  ielts?: number; // Overall band score
-  sat?: number; // Total score
-  act?: number; // Composite score
+  toefl?: number;
+  ielts?: number;
+  sat?: number;
+  act?: number;
 }
 
 export interface StudentPreferences {
-  preferredCountries: ('India' | 'USA' | 'Canada' | 'UK' | 'Australia' | 'Germany' | 'Other')[];
-  financialStatus: 'Low' | 'Medium' | 'High' | 'Scholarship-dependent';
+  preferredCountries: string[]; 
+  financialStatus: string; 
   preferredMajors: string[];
-  collegeType?: ('Public' | 'Private' | 'Research' | 'Liberal Arts')[];
+  collegeType?: string[]; 
 }
 
 export interface StudentProfile {
   id: string;
   fullName: string;
   email: string;
-  educationLevel: '10th' | '12th' | 'Graduation' | 'Post-graduation';
+  educationLevel: string; 
   academicScores: StudentAcademicScores;
   examResults?: StudentExamResults;
   preferences: StudentPreferences;
@@ -66,7 +67,6 @@ export interface StudentProfile {
   statementOfPurpose?: string;
 }
 
-// For AI Recommendation
 export interface AIRecommendationInput {
   academicScores: {
     cgpa?: number;
@@ -78,9 +78,9 @@ export interface AIRecommendationInput {
     toefl?: number;
   };
   preferences: {
-    country: string; // For simplicity in AI, maybe take first from StudentPreferences
+    country: string; 
     financialStatus: string;
-    major: string; // For simplicity, take first major
+    major: string;
   };
   additionalInfo?: string;
 }
@@ -92,4 +92,31 @@ export interface AIRecommendedCollege {
   acceptanceRate: number;
   description: string;
   isGoodFit: boolean;
+}
+
+export interface UniversityAPIResponse {
+  id: string;
+  name: string;
+  country: string;
+  location?: string;
+  studylevels?: string[];
+  subjects?: string[];
+  mincgpa?: number | null;
+  scholarships?: boolean;
+  worldranking?: number | null; 
+  webpages?: string[];
+  imageUrl?: string;
+  description?: string;
+  acceptanceRate?: number | null;
+  tuitionFees?: {
+    amount: number;
+    currency: string;
+    period: 'annual' | 'semester' | 'total' | string;
+  };
+  admissionDeadline?: string | null;
+  ranking_description?: string | null; 
+  financialAidAvailable?: boolean | null;
+  popularPrograms?: string[] | null;
+  campusLife?: string | null;
+  requiredExams?: string[] | null;
 }

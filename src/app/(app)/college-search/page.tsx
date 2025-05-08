@@ -1,70 +1,88 @@
 
 'use client';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; // Import next/image
+import Image from 'next/image'; 
+import type { UniversityAPIResponse } from '@/lib/types'; 
 
 const logoMap: Record<string, string> = {
-  'Massachusetts Institute of Technology (MIT)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
+  'Massachusetts Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
   'Stanford University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png',
   'Harvard University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png',
   'University of Cambridge': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png',
   'University of Oxford': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png',
-  'California Institute of Technology (Caltech)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png', // Added Caltech to map
+  'California Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png',
   'ETH Zurich': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/eth-logo.png',
-  'University College London (UCL)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/london-logo.png', // Added UCL to map
+  'University College London': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/london-logo.png',
   'Imperial College London': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/imperial-logo.png',
   'University of Chicago': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/chicago-logo.png',
-  'University of California, Berkeley (UCB)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/berkeley-logo.png', // Added UCB to map
-  'National University of Singapore (NUS)': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/nus-logo.png',
+  'University of California, Berkeley': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/berkeley-logo.png',
+  'National University of Singapore': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/nus-logo.png',
   'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png',
   'University of Tokyo': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/tokyo-logo.png',
   'Yale University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/yale-logo.png',
-  'Indian Institute of Technology Bombay (IITB)': 'https://picsum.photos/seed/iitb-logo/56/56', // Placeholder for IITB
-  'University of Toronto': 'https://picsum.photos/seed/utoronto-logo/56/56', // Placeholder for UofT
+  'Indian Institute of Technology Bombay': 'https://picsum.photos/seed/iitb-logo/56/56',
+  'University of Toronto': 'https://picsum.photos/seed/utoronto-logo/56/56',
 };
 
 const studyLevels = ['bachelors', 'masters', 'phd'];
-const countries = ['United States', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore']; // Extended from user's list
+const countries = ['USA', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore', 'Germany', 'Australia', 'Other']; 
 const subjects = [
   'Engineering', 'Computer Science', 'Business', 'Biology', 'Law', 'Medicine', 'Social Sciences',
   'Mathematics', 'Arts', 'Humanities', 'Sciences', 'Physics', 'Chemistry', 'Natural Sciences',
   'Architecture', 'Economics', 'Mechanical Engineering', 'Electrical Engineering', 'Business Analytics', 'Life Sciences',
 ];
 
-interface University {
-  id: string;
-  name: string;
-  country: string;
-  location?: string; // was stateprovince
-  studylevels?: string[];
-  subjects?: string[];
-  mincgpa?: number | string | null;
-  scholarships?: boolean;
-  worldranking?: number | null;
-  webpages?: string[];
-  imageUrl?: string; // For card image if available from API response
-  description?: string; // For card
-}
-
 
 export default function ResultsPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const [universities, setUniversities] = useState<University[]>([]);
+  const [universities, setUniversities] = useState<UniversityAPIResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState(searchParams.get('keyword') || searchParams.get('searchTerm') || '');
-  const [selectedCountry, setSelectedCountry] = useState(searchParams.get('country') || searchParams.get('destination') || '');
-  const [selectedLevel, setSelectedLevel] = useState(searchParams.get('studyLevel') || searchParams.get('educationLevel') || '');
-  const [selectedSubject, setSelectedSubject] = useState(searchParams.get('subject') || searchParams.get('major') || '');
-  const [sortBy, setSortBy] = useState(searchParams.get('sortBy') || 'worldranking');
-  const [minCGPA, setMinCGPA] = useState(searchParams.get('minCGPA') || searchParams.get('cgpa') || '7.0');
-  const [page, setPage] = useState(1);
-  const [perPage] = useState(6);
+  
+  const [search, setSearch] = useState(() => searchParams.get('keyword') || searchParams.get('searchTerm') || '');
+  const [selectedCountry, setSelectedCountry] = useState(() => searchParams.get('country') || searchParams.get('destination') || '');
+  const [selectedLevel, setSelectedLevel] = useState(() => searchParams.get('studyLevel') || searchParams.get('educationLevel') || '');
+  const [selectedSubject, setSelectedSubject] = useState(() => searchParams.get('subject') || searchParams.get('major') || '');
+  const [sortBy, setSortBy] = useState(() => searchParams.get('sortBy') || 'worldranking');
+  const [minCGPA, setMinCGPA] = useState(() => searchParams.get('minCGPA') || searchParams.get('cgpa') || '7.0');
 
-  // Update URL when filters change
+  const [page, setPage] = useState(1);
+  const perPage = 6;
+
+  const fetchUniversities = useCallback(async () => {
+    setLoading(true);
+    const apiParams = new URLSearchParams();
+    if (search) apiParams.set('keyword', search);
+    if (selectedCountry) apiParams.set('country', selectedCountry);
+    if (selectedLevel) apiParams.set('studyLevel', selectedLevel);
+    if (selectedSubject) apiParams.set('subject', selectedSubject);
+    if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); // Only send if not default
+    apiParams.set('sortBy', sortBy);
+    
+    try {
+      const res = await fetch(`/api/universities?${apiParams.toString()}`);
+      if (!res.ok) {
+        console.error("Failed to fetch universities", res.status, await res.text());
+        setUniversities([]);
+      } else {
+        const { data } = await res.json();
+        setUniversities(data || []);
+      }
+    } catch (error) {
+      console.error("Error fetching universities:", error);
+      setUniversities([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA]);
+
   useEffect(() => {
+    fetchUniversities();
+  }, [fetchUniversities]); 
+
+   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set('keyword', search);
     if (selectedCountry) params.set('country', selectedCountry);
@@ -74,52 +92,24 @@ export default function ResultsPage() {
     if (minCGPA !== '7.0') params.set('minCGPA', minCGPA);
 
     const queryString = params.toString();
-    // Using replace to avoid multiple history entries for filter changes.
     router.replace(`/college-search${queryString ? `?${queryString}` : ''}`, { scroll: false });
   }, [search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA, router]);
 
+  const paginatedUniversities = useMemo(() => {
+    const startIndex = (page - 1) * perPage;
+    return universities.slice(startIndex, startIndex + perPage);
+  }, [universities, page, perPage]);
 
-  useEffect(() => {
-    // Initial load of params from URL
-    setSearch(searchParams.get('keyword') || searchParams.get('searchTerm') || '');
-    setSelectedCountry(searchParams.get('country') || searchParams.get('destination') || '');
-    setSelectedLevel(searchParams.get('studyLevel') || searchParams.get('educationLevel') || '');
-    setSelectedSubject(searchParams.get('subject') || searchParams.get('major') || '');
-    setSortBy(searchParams.get('sortBy') || 'worldranking');
-    setMinCGPA(searchParams.get('minCGPA') || searchParams.get('cgpa') || '7.0');
+  const totalPages = useMemo(() => {
+    return Math.ceil(universities.length / perPage);
+  }, [universities, perPage]);
 
-    async function fetchUniversities() {
-      setLoading(true);
-      const currentParams = new URLSearchParams(window.location.search);
-      // Make sure API call uses current state of filters, not potentially stale closure values
-      const apiParams = new URLSearchParams();
-      if (search) apiParams.set('keyword', search);
-      if (selectedCountry) apiParams.set('country', selectedCountry);
-      if (selectedLevel) apiParams.set('studyLevel', selectedLevel);
-      if (selectedSubject) apiParams.set('subject', selectedSubject);
-      if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); // Only send if not default
-      apiParams.set('sortBy', sortBy);
-      
-      const res = await fetch(`/api/universities?${apiParams.toString()}`);
-      const { data } = await res.json();
-      setUniversities(data || []);
-      setLoading(false);
-    }
-    fetchUniversities();
-  }, [searchParams, search, selectedCountry, selectedLevel, selectedSubject, sortBy, minCGPA]); // Add all filter states to dependency array
-
-  // Pagination logic
-  const totalPages = Math.ceil((universities?.length || 0) / perPage);
-  const paginatedUniversities = universities?.slice((page - 1) * perPage, page * perPage) || [];
-
-  // Handle search/filter submit
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearchFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1); // Reset page on new search
-    // Fetching is handled by useEffect watching filter states
+    setPage(1); 
+    // fetchUniversities is called by its own useEffect when filter states change
   };
 
-  // Handle clear filters
   const handleClearFilters = () => {
     setSearch('');
     setSelectedCountry('');
@@ -128,14 +118,13 @@ export default function ResultsPage() {
     setSortBy('worldranking');
     setMinCGPA('7.0');
     setPage(1);
-    router.push('/college-search', { scroll: false });
+    // URL update is handled by the effect watching these state changes
   };
   
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Search Bar & Filters */}
-      <div className="max-w-5xl mx-auto mt-2"> {/* Reduced mt from 8 */}
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row items-center gap-4 bg-card rounded-xl shadow p-4">
+      <div className="max-w-5xl mx-auto mt-2 px-4 sm:px-0">
+        <form onSubmit={handleSearchFormSubmit} className="flex flex-col md:flex-row items-center gap-4 bg-card rounded-xl shadow p-4">
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
             <input
               type="text"
@@ -174,25 +163,22 @@ export default function ResultsPage() {
                 <option key={s} value={s}>{s}</option>
               ))}
             </select>
-            {/* CGPA input removed as it's not used by API currently for filtering
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-muted-foreground">Min CGPA:</label>
+            <div className="flex items-center gap-2 col-span-full sm:col-span-1 md:col-span-1 lg:col-span-1">
+              <label className="text-sm text-muted-foreground whitespace-nowrap">Min CGPA:</label>
               <input
                 type="number"
-                min="7.0"
-                max="10.0"
+                min="0" 
+                max="10.0" 
                 step="0.1"
                 value={minCGPA}
                 onChange={e => setMinCGPA(e.target.value)}
                 className="w-20 px-2 py-2 rounded border border-border bg-input text-foreground"
               />
             </div>
-            */}
           </div>
           <button type="submit" className="w-full md:w-auto mt-3 md:mt-0 px-6 py-2 bg-primary text-primary-foreground rounded-lg font-semibold shadow hover:bg-primary/90 transition">Find it now</button>
         </form>
 
-        {/* Filter Row */}
         <div className="flex flex-wrap items-center gap-4 mt-4">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground text-sm">Sort by:</span>
@@ -203,7 +189,7 @@ export default function ResultsPage() {
             >
               <option value="worldranking">World Ranking</option>
               <option value="name">Name</option>
-              {/* <option value="mincgpa">Min CGPA</option> */} {/* CGPA sort removed */}
+              <option value="mincgpa">Min CGPA</option>
             </select>
           </div>
           <button 
@@ -215,21 +201,19 @@ export default function ResultsPage() {
         </div>
       </div>
 
-      {/* Results Count */}
-      <div className="max-w-5xl mx-auto mt-6 mb-2 text-muted-foreground text-sm font-semibold">
+      <div className="max-w-5xl mx-auto mt-6 mb-2 text-muted-foreground text-sm font-semibold px-4 sm:px-0">
         {universities?.length || 0} universities found
       </div>
 
-      {/* Results Grid */}
-      <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8 px-4 sm:px-0">
         {loading ? (
           <div className="col-span-full text-center text-muted-foreground py-10">Loading...</div>
         ) : paginatedUniversities.length === 0 ? (
           <div className="col-span-full text-center text-muted-foreground py-10">No universities found. Try adjusting your filters.</div>
         ) : (
           paginatedUniversities.map((uni, idx) => {
-            const isFirstCard = idx === 0 && page === 1; // Highlight only the very first card on the first page
-            const logoSrc = logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`;
+            const isFirstCard = idx === 0 && page === 1; 
+            const logoSrc = uni.imageUrl || logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`;
             return (
             <div
               key={uni.id || uni.name}
@@ -237,10 +221,11 @@ export default function ResultsPage() {
             >
               <Image
                 src={logoSrc}
-                alt={uni.name + ' logo'}
+                alt={`${uni.name} logo`}
                 width={56}
                 height={56}
                 className="object-contain mb-3 rounded-lg bg-muted"
+                onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/fallback-${uni.id}/56/56`; }}
                 data-ai-hint="university logo"
               />
               <h2 className={`text-lg font-bold mb-1 ${isFirstCard ? 'text-primary' : 'text-primary'}`}>{uni.name}</h2>
@@ -255,22 +240,26 @@ export default function ResultsPage() {
               )}
               {uni.subjects && uni.subjects.length > 0 && (
                  <div className="flex flex-wrap gap-1 mb-2">
-                    {uni.subjects.slice(0, 3).map((subj: string) => ( // Limit displayed subjects
+                    {uni.subjects.slice(0, 3).map((subj: string) => ( 
                     <span key={subj} className={`px-1.5 py-0.5 rounded-full text-xs ${isFirstCard ? 'bg-muted text-foreground/80' : 'bg-secondary text-secondary-foreground'}`}>{subj}</span>
                     ))}
                  </div>
               )}
 
-              {uni.mincgpa && <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Min CGPA: <span className="font-semibold">{uni.mincgpa}</span></div>}
+              {uni.mincgpa != null && <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Min CGPA: <span className="font-semibold">{uni.mincgpa}</span></div>}
               
               <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Scholarships: <span className={uni.scholarships ? 'text-accent font-semibold' : 'text-destructive font-semibold'}>{uni.scholarships ? 'Available' : 'Not Available'}</span></div>
               
-              {uni.worldranking && (
+              {uni.worldranking != null && (
                 <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>World Ranking: <span className="font-semibold">#{uni.worldranking}</span></div>
+              )}
+               {uni.ranking_description && (
+                 <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Ranking: <span className="font-semibold">{uni.ranking_description}</span></div>
               )}
               {uni.webpages && uni.webpages.length > 0 && (
                 <Link
-                  href={uni.webpages[0]}
+                  // Ensure URL is absolute
+                  href={uni.webpages[0].startsWith('http') ? uni.webpages[0] : `https://${uni.webpages[0]}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`mt-auto pt-3 px-4 py-2 rounded-lg font-semibold transition text-center w-full ${isFirstCard ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
@@ -283,7 +272,6 @@ export default function ResultsPage() {
         )}
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center items-center gap-2 mt-8 mb-12">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map(num => (
