@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
     id,
     name,
     country,
-    location,
+    city, -- Changed from location
     study_levels, 
     popular_programs,
     min_cgpa,
@@ -39,7 +39,8 @@ export async function GET(request: NextRequest) {
   `);
 
   if (keyword) {
-    query = query.or(`name.ilike.%${keyword}%,description.ilike.%${keyword}%,location.ilike.%${keyword}%`);
+    // Assuming 'city' is the column for location in your DB
+    query = query.or(`name.ilike.%${keyword}%,description.ilike.%${keyword}%,city.ilike.%${keyword}%`);
   }
 
   if (countryParam) {
@@ -68,6 +69,7 @@ export async function GET(request: NextRequest) {
   } else if (sortBy === 'mincgpa' || sortBy === 'min_cgpa') {
     query = query.order('min_cgpa', { ascending: true, nullsFirst: false });
   } else {
+    // Default sort by world_ranking
     query = query.order('world_ranking', { ascending: true, nullsFirst: false });
   }
   
@@ -86,7 +88,7 @@ export async function GET(request: NextRequest) {
     id: String(uni.id),
     name: uni.name,
     country: uni.country,
-    location: uni.location,
+    location: uni.city, // Mapped from uni.city
     studylevels: uni.study_levels || [], 
     subjects: uni.popular_programs || [], 
     mincgpa: uni.min_cgpa,
@@ -111,3 +113,4 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ data: transformedData });
 }
+
