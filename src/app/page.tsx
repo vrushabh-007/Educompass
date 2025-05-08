@@ -9,7 +9,7 @@ import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
 import UniversityLogos from "@/components/landing/university-logos";
 import GlobalRankings from "@/components/landing/GlobalRankings";
-import Newsletter from "@/components/landing/Newsletter"; // Added import
+import Newsletter from "@/components/landing/Newsletter";
 import { Input } from "@/components/ui/input";
 import React, { useState } from "react"; 
 import { useRouter } from "next/navigation";
@@ -104,22 +104,21 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section id="how-it-works" className="w-full py-12 sm:py-16 bg-muted/30">
+        <section id="how-it-works" className="w-full py-12 sm:py-16">
            <UniversityLogos />
         </section>
 
-        <section className="w-full bg-background">
+        <section className="w-full">
           <GlobalRankings />
         </section>
 
-        <section className="w-full bg-background">
+        <section className="w-full">
           <Newsletter />
         </section>
       </main>
-      <footer className="py-8 text-center text-muted-foreground text-sm border-t border-border">
+      <footer className="py-8 text-center text-muted-foreground text-sm">
         © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
       </footer>
     </div>
   );
 }
-
