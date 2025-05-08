@@ -64,7 +64,7 @@ export default function RegisterPage() {
         </div>
         <CardTitle className="text-2xl">Create an Account</CardTitle>
         <CardDescription>
-          Join CollegePath to find your dream college.
+          Join EDUCOMPASS to find your dream college.
         </CardDescription>
       </CardHeader>
       <CardContent>

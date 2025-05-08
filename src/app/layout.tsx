@@ -7,7 +7,7 @@ import { GenkitClientProvider } from '@/components/genkit-client-provider';
 
 
 export const metadata: Metadata = {
-  title: 'CollegePath - Find Your Future',
+  title: 'EDUCOMPASS - Find Your Future',
   description: 'Helping students find suitable colleges based on their profiles and preferences.',
 };
 
