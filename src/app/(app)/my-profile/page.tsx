@@ -53,13 +53,24 @@ const mockStudentProfileData: StudentProfile = {
 
 const academicScoresSchema = z.object({
   cgpa: z.number().min(0).max(10).optional(),
-  cgpaScale: z.number().optional(),
+  cgpaScale: z.number().optional(), // Assuming scale is like 4 or 10, not for direct input necessarily
   percentage: z.number().min(0).max(100).optional(),
 });
 
 const examResultsSchema = z.object({
-  gre: z.object({ verbal: z.number().optional(), quant: z.number().optional(), awa: z.number().optional(), total: z.number().optional() }).optional(),
-  gmat: z.object({ verbal: z.number().optional(), quant: z.number().optional(), awa: z.number().optional(), ir: z.number().optional(), total: z.number().optional() }).optional(),
+  gre: z.object({ 
+    verbal: z.number().optional(), 
+    quant: z.number().optional(), 
+    awa: z.number().optional(), 
+    total: z.number().optional() 
+  }).optional(),
+  gmat: z.object({ 
+    verbal: z.number().optional(), 
+    quant: z.number().optional(), 
+    awa: z.number().optional(), 
+    ir: z.number().optional(), 
+    total: z.number().optional() 
+  }).optional(),
   toefl: z.number().optional(),
   ielts: z.number().optional(),
   sat: z.number().optional(),
@@ -132,6 +143,17 @@ export default function MyProfilePage() {
       className: "bg-accent text-accent-foreground"
     });
   }
+  
+  const handleNumericInputChange = (fieldOnChange: (value: number | undefined) => void, isFloat = false) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const strVal = e.target.value;
+    if (strVal === "") {
+      fieldOnChange(undefined);
+    } else {
+      const numVal = isFloat ? parseFloat(strVal) : parseInt(strVal, 10);
+      fieldOnChange(isNaN(numVal) ? undefined : numVal);
+    }
+  };
+
 
   if (isLoading) {
     return <div className="container mx-auto p-4"><p>Loading profile...</p></div>;
@@ -189,13 +211,16 @@ export default function MyProfilePage() {
                 )} />
                 <div className="grid md:grid-cols-3 gap-6 mb-6">
                   <FormField control={form.control} name="academicScores.cgpa" render={({ field }) => (
-                    <FormItem><FormLabel>CGPA</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>CGPA</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} onChange={handleNumericInputChange(field.onChange, true)} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="academicScores.cgpaScale" render={({ field }) => (
-                    <FormItem><FormLabel>CGPA Scale (e.g., 4 or 10)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>CGPA Scale (e.g., 4 or 10)</FormLabel>
+                    <FormControl><Input type="number" {...field} onChange={handleNumericInputChange(field.onChange)} /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="academicScores.percentage" render={({ field }) => (
-                    <FormItem><FormLabel>Percentage (%)</FormLabel><FormControl><Input type="number" step="0.01" {...field} onChange={e => field.onChange(parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Percentage (%)</FormLabel>
+                    <FormControl><Input type="number" step="0.01" {...field} onChange={handleNumericInputChange(field.onChange, true)} /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
               </section>
@@ -205,10 +230,12 @@ export default function MyProfilePage() {
                 <h3 className="text-xl font-semibold mb-4 border-b pb-2 text-primary">Standardized Exam Scores</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="examResults.gre.total" render={({ field }) => (
-                    <FormItem><FormLabel>GRE Total Score</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))}/></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>GRE Total Score</FormLabel>
+                    <FormControl><Input type="number" {...field} onChange={handleNumericInputChange(field.onChange)}/></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="examResults.toefl" render={({ field }) => (
-                    <FormItem><FormLabel>TOEFL Total Score</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>TOEFL Total Score</FormLabel>
+                    <FormControl><Input type="number" {...field} onChange={handleNumericInputChange(field.onChange)} /></FormControl><FormMessage /></FormItem>
                   )} />
                   {/* Add other exams (GMAT, IELTS, SAT, ACT) similarly */}
                 </div>
@@ -277,7 +304,8 @@ export default function MyProfilePage() {
                 <h3 className="text-xl font-semibold mb-4 border-b pb-2 text-primary">Additional Information</h3>
                 <div className="grid md:grid-cols-2 gap-6">
                     <FormField control={form.control} name="workExperienceYears" render={({ field }) => (
-                        <FormItem><FormLabel>Work Experience (Years)</FormLabel><FormControl><Input type="number" {...field} onChange={e => field.onChange(parseInt(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                        <FormItem><FormLabel>Work Experience (Years)</FormLabel>
+                        <FormControl><Input type="number" {...field} onChange={handleNumericInputChange(field.onChange)} /></FormControl><FormMessage /></FormItem>
                     )} />
                 </div>
                 <FormField control={form.control} name="extracurriculars" render={({ field }) => (

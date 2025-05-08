@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -25,7 +24,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CollegeCard } from '@/components/college-card';
-import { COUNTRIES, FINANCIAL_STATUS_OPTIONS, MAJORS_SAMPLE } from "@/lib/constants";
+import { COUNTRIES, FINANCIAL_STATUS_OPTIONS, MAJORS_SAMPLE, EXAM_OPTIONS } from "@/lib/constants";
 import type { AIRecommendationInput, AIRecommendedCollege, College } from "@/lib/types"; // Assuming College type is also needed for mapping
 import { generateCollegeRecommendation } from '@/ai/flows/generate-college-recommendation';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -35,28 +34,14 @@ import { mockColleges } from '@/data/mock-colleges'; // To map AI results to ful
 
 const recommendationFormSchema = z.object({
   academicScores: z.object({
-    cgpa: z.preprocess(
-      (val) => (val === "" ? undefined : parseFloat(String(val))),
-      z.number().min(0).max(10).optional()
-    ),
-    percentage: z.preprocess(
-      (val) => (val === "" ? undefined : parseFloat(String(val))),
-      z.number().min(0).max(100).optional()
-    ),
+    cgpa: z.number().min(0).max(10).optional(),
+    percentage: z.number().min(0).max(100).optional(),
   }),
   examResults: z.object({
-     gre: z.preprocess(
-      (val) => (val === "" ? undefined : parseInt(String(val), 10)),
-      z.number().min(260).max(340).optional() // Typical GRE range
-    ),
-    gmat: z.preprocess(
-      (val) => (val === "" ? undefined : parseInt(String(val), 10)),
-      z.number().min(200).max(800).optional() // Typical GMAT range
-    ),
-    toefl: z.preprocess(
-      (val) => (val === "" ? undefined : parseInt(String(val), 10)),
-      z.number().min(0).max(120).optional() // Typical TOEFL range
-    ),
+    examType: z.string().optional(), // To select which exam score to provide
+    gre: z.number().min(260).max(340).optional(),
+    gmat: z.number().min(200).max(800).optional(),
+    toefl: z.number().min(0).max(120).optional(),
   }),
   preferences: z.object({
     country: z.string({ required_error: "Preferred country is required." }),
@@ -71,7 +56,7 @@ type RecommendationFormValues = z.infer<typeof recommendationFormSchema>;
 // Mock student data to prefill the form
 const mockStudentPrefill: Partial<RecommendationFormValues> = {
   academicScores: { cgpa: 3.5, percentage: 80 },
-  examResults: { gre: 310, toefl: 100 },
+  examResults: { examType: "gre", gre: 310 }, // Default to GRE, GMAT/TOEFL can be undefined
   preferences: { country: "USA", financialStatus: "Medium", major: "Computer Science" },
   additionalInfo: "Interested in research opportunities and a diverse campus environment."
 };
@@ -87,6 +72,8 @@ export default function RecommendationsPage() {
     defaultValues: mockStudentPrefill,
   });
 
+  const selectedExamType = form.watch("examResults.examType");
+
   async function onSubmit(data: RecommendationFormValues) {
     setIsLoading(true);
     setError(null);
@@ -97,10 +84,10 @@ export default function RecommendationsPage() {
             cgpa: data.academicScores.cgpa,
             percentage: data.academicScores.percentage,
         },
-        examResults: {
-            gre: data.examResults.gre,
-            gmat: data.examResults.gmat,
-            toefl: data.examResults.toefl,
+        examResults: { // Only send the selected exam score
+            gre: data.examResults.examType === 'gre' ? data.examResults.gre : undefined,
+            gmat: data.examResults.examType === 'gmat' ? data.examResults.gmat : undefined,
+            toefl: data.examResults.examType === 'toefl' ? data.examResults.toefl : undefined,
         },
         preferences: {
             country: data.preferences.country,
@@ -113,28 +100,24 @@ export default function RecommendationsPage() {
     try {
       const aiResults = await generateCollegeRecommendation(aiInput);
       
-      // Map AI results to full College objects from mockColleges for display
-      // In a real app, you might fetch these from a DB or use a more robust matching logic
       const mappedResults: College[] = aiResults.map(aiCollege => {
         const existingCollege = mockColleges.find(mc => mc.name.toLowerCase() === aiCollege.collegeName.toLowerCase());
         if (existingCollege) {
           return { 
             ...existingCollege, 
-            // Augment with AI-specific fields if needed for the card
             _aiIsGoodFit: aiCollege.isGoodFit, 
             _aiDescription: aiCollege.description,
           };
         }
-        // Fallback if no exact match in mockColleges, create a partial College object
         return {
-          id: aiCollege.collegeName.replace(/\s+/g, '-').toLowerCase(), // simple ID
+          id: aiCollege.collegeName.replace(/\s+/g, '-').toLowerCase(), 
           name: aiCollege.collegeName,
           location: aiCollege.location,
-          country: data.preferences.country as College['country'], // Cast, or map better
+          country: data.preferences.country as College['country'], 
           description: aiCollege.description,
           popularPrograms: [aiCollege.majorOffered],
           acceptanceRate: aiCollege.acceptanceRate,
-          _aiIsGoodFit: aiCollege.isGoodFit, // Keep AI assessment
+          _aiIsGoodFit: aiCollege.isGoodFit, 
         } as College;
       });
 
@@ -145,6 +128,16 @@ export default function RecommendationsPage() {
     }
     setIsLoading(false);
   }
+
+  const handleNumericInputChange = (fieldOnChange: (value: number | undefined) => void, isFloat = false) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const strVal = e.target.value;
+    if (strVal === "") {
+      fieldOnChange(undefined);
+    } else {
+      const numVal = isFloat ? parseFloat(strVal) : parseInt(strVal, 10);
+      fieldOnChange(isNaN(numVal) ? undefined : numVal);
+    }
+  };
 
   return (
     <div className="container mx-auto py-8">
@@ -169,25 +162,70 @@ export default function RecommendationsPage() {
                 <section className="space-y-4 p-4 border rounded-md bg-card">
                   <h3 className="text-lg font-semibold text-primary">Academic Scores</h3>
                    <FormField control={form.control} name="academicScores.cgpa" render={({ field }) => (
-                    <FormItem><FormLabel>CGPA (e.g., 3.5 or 8.5)</FormLabel><FormControl><Input type="number" step="0.01" placeholder="Your CGPA" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>CGPA (e.g., 3.5 or 8.5)</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="0.01" placeholder="Your CGPA" {...field} onChange={handleNumericInputChange(field.onChange, true)} />
+                    </FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="academicScores.percentage" render={({ field }) => (
-                    <FormItem><FormLabel>Percentage (e.g., 85%)</FormLabel><FormControl><Input type="number" step="0.01" placeholder="Your Percentage" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Percentage (e.g., 85%)</FormLabel>
+                    <FormControl>
+                        <Input type="number" step="0.01" placeholder="Your Percentage" {...field} onChange={handleNumericInputChange(field.onChange, true)} />
+                    </FormControl><FormMessage /></FormItem>
                   )} />
                 </section>
 
                 {/* Exam Results */}
                 <section className="space-y-4 p-4 border rounded-md bg-card">
                   <h3 className="text-lg font-semibold text-primary">Exam Results</h3>
-                   <FormField control={form.control} name="examResults.gre" render={({ field }) => (
-                    <FormItem><FormLabel>GRE Score (Total)</FormLabel><FormControl><Input type="number" placeholder="e.g., 320" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                   <FormField control={form.control} name="examResults.gmat" render={({ field }) => (
-                    <FormItem><FormLabel>GMAT Score (Total)</FormLabel><FormControl><Input type="number" placeholder="e.g., 700" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="examResults.toefl" render={({ field }) => (
-                    <FormItem><FormLabel>TOEFL Score (Total)</FormLabel><FormControl><Input type="number" placeholder="e.g., 100" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
+                  <FormField
+                    control={form.control}
+                    name="examResults.examType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Exam Type</FormLabel>
+                        <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            // Optionally reset other exam fields when type changes
+                            if (value !== 'gre') form.setValue('examResults.gre', undefined);
+                            if (value !== 'gmat') form.setValue('examResults.gmat', undefined);
+                            if (value !== 'toefl') form.setValue('examResults.toefl', undefined);
+                        }} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue placeholder="Select exam type" /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="gre">GRE</SelectItem>
+                            <SelectItem value="gmat">GMAT</SelectItem>
+                            <SelectItem value="toefl">TOEFL</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {selectedExamType === 'gre' && (
+                    <FormField control={form.control} name="examResults.gre" render={({ field }) => (
+                      <FormItem><FormLabel>GRE Score (Total)</FormLabel>
+                      <FormControl>
+                          <Input type="number" placeholder="e.g., 320" {...field} onChange={handleNumericInputChange(field.onChange)} />
+                      </FormControl><FormMessage /></FormItem>
+                    )} />
+                  )}
+                  {selectedExamType === 'gmat' && (
+                    <FormField control={form.control} name="examResults.gmat" render={({ field }) => (
+                      <FormItem><FormLabel>GMAT Score (Total)</FormLabel>
+                      <FormControl>
+                          <Input type="number" placeholder="e.g., 700" {...field} onChange={handleNumericInputChange(field.onChange)} />
+                      </FormControl><FormMessage /></FormItem>
+                    )} />
+                  )}
+                  {selectedExamType === 'toefl' && (
+                    <FormField control={form.control} name="examResults.toefl" render={({ field }) => (
+                      <FormItem><FormLabel>TOEFL Score (Total)</FormLabel>
+                      <FormControl>
+                          <Input type="number" placeholder="e.g., 100" {...field} onChange={handleNumericInputChange(field.onChange)} />
+                      </FormControl><FormMessage /></FormItem>
+                    )} />
+                  )}
                 </section>
               </div>
               
@@ -286,4 +324,3 @@ export default function RecommendationsPage() {
     </div>
   );
 }
-

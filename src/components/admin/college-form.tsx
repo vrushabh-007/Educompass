@@ -33,15 +33,9 @@ const collegeFormSchema = z.object({
   country: z.string({ required_error: "Country is required." }) as z.ZodType<College['country']>,
   description: z.string().min(10, "Description must be at least 10 characters."),
   imageUrl: z.string().url("Must be a valid URL.").optional().or(z.literal('')),
-  acceptanceRate: z.preprocess(
-    (val) => (val === "" ? undefined : parseFloat(String(val))),
-    z.number().min(0).max(100).optional()
-  ),
+  acceptanceRate: z.number().min(0).max(100).optional(),
   tuitionFees: z.object({
-    amount: z.preprocess(
-      (val) => (val === "" ? undefined : parseFloat(String(val))),
-      z.number().min(0).optional()
-    ),
+    amount: z.number().min(0).optional(),
     currency: z.string().optional(),
     period: z.enum(["annual", "semester", "total"]).optional(),
   }).optional(),
@@ -67,9 +61,9 @@ export function CollegeForm({ onSubmit, initialData, onCancel }: CollegeFormProp
     resolver: zodResolver(collegeFormSchema),
     defaultValues: initialData ? {
       ...initialData,
-      // Ensure arrays are initialized for useFieldArray
       popularPrograms: initialData.popularPrograms || [],
       requiredExams: initialData.requiredExams || [],
+      tuitionFees: initialData.tuitionFees || { currency: 'USD', period: 'annual'},
     } : {
       popularPrograms: [],
       requiredExams: [],
@@ -89,13 +83,22 @@ export function CollegeForm({ onSubmit, initialData, onCancel }: CollegeFormProp
   });
 
   const handleSubmit = (data: CollegeFormValues) => {
-    // Ensure optional empty strings are treated as undefined
     const processedData = {
       ...data,
       imageUrl: data.imageUrl === '' ? undefined : data.imageUrl,
       website: data.website === '' ? undefined : data.website,
     };
-    onSubmit(processedData as College); // Cast because Zod schema optional != type optional sometimes
+    onSubmit(processedData as College); 
+  };
+  
+  const handleNumericInputChange = (fieldOnChange: (value: number | undefined) => void, isFloat = false) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const strVal = e.target.value;
+    if (strVal === "") {
+      fieldOnChange(undefined);
+    } else {
+      const numVal = isFloat ? parseFloat(strVal) : parseInt(strVal, 10);
+      fieldOnChange(isNaN(numVal) ? undefined : numVal);
+    }
   };
 
 
@@ -133,7 +136,8 @@ export function CollegeForm({ onSubmit, initialData, onCancel }: CollegeFormProp
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField control={form.control} name="acceptanceRate" render={({ field }) => (
-            <FormItem><FormLabel>Acceptance Rate (%)</FormLabel><FormControl><Input type="number" step="0.1" placeholder="e.g., 15.5" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Acceptance Rate (%)</FormLabel>
+            <FormControl><Input type="number" step="0.1" placeholder="e.g., 15.5" {...field} onChange={handleNumericInputChange(field.onChange, true)} /></FormControl><FormMessage /></FormItem>
           )} />
           <FormField control={form.control} name="ranking" render={({ field }) => (
             <FormItem><FormLabel>Ranking</FormLabel><FormControl><Input placeholder="e.g., Top 10 in Engineering" {...field} /></FormControl><FormMessage /></FormItem>
@@ -143,7 +147,8 @@ export function CollegeForm({ onSubmit, initialData, onCancel }: CollegeFormProp
         <h4 className="text-md font-semibold pt-2 border-t">Tuition & Fees</h4>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
            <FormField control={form.control} name="tuitionFees.amount" render={({ field }) => (
-            <FormItem><FormLabel>Amount</FormLabel><FormControl><Input type="number" placeholder="e.g., 50000" {...field} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>Amount</FormLabel>
+            <FormControl><Input type="number" placeholder="e.g., 50000" {...field} onChange={handleNumericInputChange(field.onChange)} /></FormControl><FormMessage /></FormItem>
           )} />
            <FormField control={form.control} name="tuitionFees.currency" render={({ field }) => (
             <FormItem><FormLabel>Currency</FormLabel><FormControl><Input placeholder="e.g., USD, INR" {...field} /></FormControl><FormMessage /></FormItem>
