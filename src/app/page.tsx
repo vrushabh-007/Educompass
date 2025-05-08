@@ -8,26 +8,31 @@ import { HeroSearchForm } from "@/components/landing/hero-search-form";
 export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-[hsl(var(--primary)/0.2)] text-foreground">
-      <header className="px-4 lg:px-6 h-20 flex items-center fixed top-0 left-0 right-0 z-50 bg-transparent">
-        <AppLogo />
-        <nav className="ml-auto flex gap-4 sm:gap-6">
-          <Link
-            className="text-sm font-medium hover:underline underline-offset-4 text-primary-foreground/80 hover:text-primary-foreground"
-            href="/login"
-          >
-            Login
-          </Link>
-          <Button asChild variant="secondary" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground">
-            <Link href="/register">
-              Get Started <ArrowRight className="ml-2 h-4 w-4" />
+      <header className="h-20 flex items-center fixed top-0 left-0 right-0 z-50 bg-transparent">
+        <div className="container mx-auto flex items-center"> {/* Container for horizontal padding and alignment */}
+          <AppLogo />
+          <nav className="ml-auto flex gap-4 sm:gap-6">
+            <Link
+              className="text-sm font-medium hover:underline underline-offset-4 text-primary-foreground/80 hover:text-primary-foreground"
+              href="/login"
+            >
+              Login
             </Link>
-          </Button>
-        </nav>
+            <Button asChild variant="secondary" className="bg-primary-foreground/10 hover:bg-primary-foreground/20 text-primary-foreground">
+              <Link href="/register">
+                Get Started <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </nav>
+        </div>
       </header>
       
+      {/* Added pt-20 back to main to account for the fixed header height */}
       <main className="flex-1 flex items-center pt-20">
-        <section className="w-full py-12 md:py-24 lg:py-32">
-          <div className="container px-4 md:px-6">
+        {/* Removed py-12 md:py-24 lg:py-32 from section to remove its internal top/bottom padding */}
+        <section className="w-full">
+          {/* Container for horizontal padding of the section content */}
+          <div className="container mx-auto"> 
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
               
               <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
@@ -65,7 +70,6 @@ export default function LandingPage() {
           </div>
         </section>
       </main>
-      {/* Footer can be added back if needed, for now focusing on hero */}
     </div>
   );
 }
