@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState } from "react";
@@ -55,17 +56,17 @@ export function HeroSearchForm() {
   function onSubmit(values: HeroSearchFormValues) {
     console.log("Hero search form submitted:", values);
     const queryParams = new URLSearchParams();
-    if (values.studyLevel) queryParams.set("studyLevel", values.studyLevel); // Updated from educationLevel
+    if (values.studyLevel) queryParams.set("studyLevel", values.studyLevel);
     if (values.destination) queryParams.set("country", values.destination);
-    if (values.subject) queryParams.set("subject", values.subject); // Updated from major
-    if (values.cgpa) queryParams.set("minCGPA", values.cgpa.toString()); // Correctly using minCGPA as per college-search
+    if (values.subject) queryParams.set("subject", values.subject);
+    if (values.cgpa) queryParams.set("minCGPA", values.cgpa.toString());
     if (values.includeScholarships) queryParams.set("scholarships", "true");
     
     router.push(`/college-search?${queryParams.toString()}`);
   }
 
   return (
-    <Card className="w-full max-w-md bg-card/80 backdrop-blur-sm shadow-2xl border-border/50">
+    <Card className="w-full max-w-md bg-transparent/30 backdrop-blur-md shadow-2xl border-border/30">
       <CardHeader>
         <CardTitle className="text-2xl font-semibold text-center text-card-foreground">
           Find Your Perfect University
@@ -82,7 +83,7 @@ export function HeroSearchForm() {
                   <FormLabel className="text-card-foreground/80">Study Level</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input text-foreground">
+                      <SelectTrigger className="bg-input/50 backdrop-blur-sm text-foreground border-border/50">
                         <SelectValue placeholder="Select Study Level" />
                       </SelectTrigger>
                     </FormControl>
@@ -107,7 +108,7 @@ export function HeroSearchForm() {
                   <FormLabel className="text-card-foreground/80">Destination</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input text-foreground">
+                      <SelectTrigger className="bg-input/50 backdrop-blur-sm text-foreground border-border/50">
                         <SelectValue placeholder="Select Destination" />
                       </SelectTrigger>
                     </FormControl>
@@ -132,7 +133,7 @@ export function HeroSearchForm() {
                   <FormLabel className="text-card-foreground/80">Subject</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input text-foreground">
+                      <SelectTrigger className="bg-input/50 backdrop-blur-sm text-foreground border-border/50">
                         <SelectValue placeholder="Select Subject" />
                       </SelectTrigger>
                     </FormControl>
@@ -207,3 +208,4 @@ export function HeroSearchForm() {
     </Card>
   );
 }
+

@@ -1,19 +1,19 @@
+
 'use client';
 
 import React, { useState } from 'react';
-import { createClient } from '@/lib/supabase/client'; // Updated import
+import { createClient } from '@/lib/supabase/client';
 
 function Newsletter() {
   const [email, setEmail] = useState('');
   const [isChecked, setIsChecked] = useState(false);
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle'); // idle, loading, success, error
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
-  const supabase = createClient(); // Initialize Supabase client
+  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Validate form
     if (!email) {
       setStatus('error');
       setMessage('Please enter your email address');
@@ -26,7 +26,6 @@ function Newsletter() {
       return;
     }
 
-    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setStatus('error');
@@ -38,9 +37,8 @@ function Newsletter() {
       setStatus('loading');
       setMessage('');
 
-      // Insert directly using Supabase client
       const { data, error } = await supabase
-        .from('Newsletter') // Make sure 'Newsletter' table exists and has correct RLS policies
+        .from('Newsletter')
         .insert([
           {
             email,
@@ -51,14 +49,13 @@ function Newsletter() {
         .select();
 
       if (error) {
-        if (error.code === '23505') { // Unique violation error code
+        if (error.code === '23505') { 
           throw new Error('This email is already subscribed to our newsletter.');
         }
         console.error('Supabase error:', error);
         throw new Error('Failed to subscribe. Please try again later.');
       }
 
-      // Success
       setStatus('success');
       setMessage('Thank you for subscribing to our newsletter!');
       setEmail('');
@@ -70,17 +67,17 @@ function Newsletter() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-primary to-accent py-12">
+    <div className="py-12">
       <div className="container mx-auto px-4 md:px-8 text-primary-foreground text-center">
-        <h2 className="text-2xl font-semibold mb-4">Subscribe to our newsletter</h2>
-        <p className="mb-8">
+        <h2 className="text-2xl font-semibold mb-4 text-foreground">Subscribe to our newsletter</h2>
+        <p className="mb-8 text-muted-foreground">
           Get expert advice for your journey to university delivered to your inbox each month. It&apos;s short, and worthwhile - we promise!
         </p>
         <form onSubmit={handleSubmit} className="max-w-xl mx-auto">
           <input
             type="email"
             placeholder="Email address"
-            className="w-full mb-4 px-4 py-3 rounded-lg text-foreground bg-background/80 focus:ring-2 focus:ring-primary-foreground/50 outline-none"
+            className="w-full mb-4 px-4 py-3 rounded-lg text-foreground bg-transparent/30 backdrop-blur-sm border border-border/50 focus:ring-2 focus:ring-primary-foreground/50 outline-none"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={status === 'loading'}
@@ -89,12 +86,12 @@ function Newsletter() {
             <input
               type="checkbox"
               id="terms"
-              className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              className="mr-2 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary accent-primary"
               checked={isChecked}
               onChange={(e) => setIsChecked(e.target.checked)}
               disabled={status === 'loading'}
             />
-            <label htmlFor="terms" className="text-sm text-primary-foreground/90">
+            <label htmlFor="terms" className="text-sm text-muted-foreground">
               I confirm I am over 16 and I agree to the Terms and Conditions and Privacy Notice.
             </label>
           </div>
@@ -105,7 +102,7 @@ function Newsletter() {
                 status === 'error' 
                   ? 'bg-destructive/20 text-destructive-foreground border border-destructive/30' 
                   : status === 'success'
-                  ? 'bg-green-500/20 text-green-100 border border-green-500/30' // Assuming green for success makes sense with the theme
+                  ? 'bg-green-500/20 text-green-100 border border-green-500/30'
                   : ''
               }`}
             >
@@ -134,3 +131,4 @@ function Newsletter() {
 }
 
 export default Newsletter;
+

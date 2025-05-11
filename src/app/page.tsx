@@ -29,11 +29,11 @@ export default function LandingPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/5 text-foreground relative">
+    <div className="flex flex-col min-h-screen text-foreground relative">
       <InteractiveGlobeBackground />
       <header className="py-3 fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
-          <div className="bg-card/90 backdrop-blur-lg rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between">
+          <div className="bg-transparent/30 backdrop-blur-md rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between border border-border/30">
             <div className="flex items-center">
               <AppLogo />
             </div>
@@ -43,14 +43,14 @@ export default function LandingPage() {
               <Input
                 type="search"
                 placeholder="Search colleges, courses..."
-                className="w-full pl-9 pr-3 py-2 h-9 sm:h-10 rounded-full bg-input border-border focus:border-primary text-sm"
+                className="w-full pl-9 pr-3 py-2 h-9 sm:h-10 rounded-full bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary text-sm"
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
               />
             </form>
 
             <nav className="flex items-center gap-1 sm:gap-2">
-              <Button variant="ghost" size="sm" asChild className="rounded-full text-xs sm:text-sm text-foreground/80 hover:text-foreground hover:bg-transparent px-2 sm:px-3">
+              <Button variant="ghost" size="sm" asChild className="rounded-full text-xs sm:text-sm text-foreground/80 hover:text-foreground hover:bg-transparent/20 px-2 sm:px-3">
                 <Link href="/login">
                   Login
                 </Link>
@@ -66,7 +66,7 @@ export default function LandingPage() {
         </div>
       </header>
       
-      <main className="flex-1 flex flex-col z-10"> {/* Added z-10 to ensure main content is above the -z-10 background */}
+      <main className="flex-1 flex flex-col z-10">
         <section className="w-full flex-grow flex items-center pt-28 sm:pt-32 px-4 sm:px-6 lg:px-8"> 
           <div className="container mx-auto">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
@@ -90,7 +90,7 @@ export default function LandingPage() {
                       Explore Universities
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild className="border-foreground/30 hover:bg-foreground/10 text-foreground py-7 px-8 text-lg shadow-md hover:shadow-lg transition-shadow">
+                  <Button size="lg" variant="outline" asChild className="border-foreground/30 hover:bg-foreground/10 text-foreground py-7 px-8 text-lg shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm bg-transparent/10">
                     <Link href="#how-it-works"> 
                       How It Works
                     </Link>
@@ -106,21 +106,22 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section id="how-it-works" className="w-full py-0 sm:py-0"> {/* Removed top/bottom padding */}
+        <section id="how-it-works" className="w-full py-0 sm:py-0">
            <UniversityLogos />
         </section>
 
-        <section className="w-full py-0 sm:py-0"> {/* Removed top/bottom padding */}
+        <section className="w-full py-0 sm:py-0">
           <GlobalRankings />
         </section>
 
-        <section className="w-full py-0 sm:py-0"> {/* Removed top/bottom padding */}
+        <section className="w-full py-0 sm:py-0">
           <Newsletter />
         </section>
       </main>
-      <footer className="py-8 text-center text-muted-foreground text-sm z-10"> {/* Added z-10 */}
+      <footer className="py-8 text-center text-muted-foreground text-sm z-10 bg-transparent/10 backdrop-blur-sm">
         © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
       </footer>
     </div>
   );
 }
+
