@@ -1,3 +1,4 @@
+
 // src/components/landing/FrankyEarth.tsx
 'use client';
 
@@ -130,20 +131,19 @@ const FrankyEarth: React.FC = () => {
 
     // Earth
     const earthGeometry = new THREE.SphereGeometry(5, 50, 50);
+    const earthTexturePath = '/assets/globe.jpg';
     const earthMaterial = new THREE.ShaderMaterial({
       vertexShader: earthVertexShader,
       fragmentShader: earthFragmentShader,
       uniforms: {
         globeTexture: {
-          value: new THREE.TextureLoader().load('/assets/globe.jpg', 
+          value: new THREE.TextureLoader().load(earthTexturePath, 
             (texture) => {
-                // console.log("Globe texture loaded successfully");
+                // console.log("Globe texture loaded successfully from:", earthTexturePath);
             }, 
-            undefined,
-            (error) => {
-                console.error("Error loading globe texture:", error);
-                // Fallback: if texture fails, use a solid color (maybe dark purple)
-                // This part of the fallback is tricky with shaders; easier to ensure texture path is correct.
+            undefined, // onProgress callback (optional)
+            (error) => { // onError callback
+                console.error(`Error loading globe texture from path: '${earthTexturePath}'. Please ensure the file exists in the 'public/assets' directory. Error details:`, error);
             }
           )
         },
