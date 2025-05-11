@@ -11,6 +11,7 @@ import UniversityLogos from "@/components/landing/university-logos";
 import GlobalRankings from "@/components/landing/GlobalRankings";
 import Newsletter from "@/components/landing/Newsletter";
 import { Input } from "@/components/ui/input";
+import InteractiveGlobeBackground from "@/components/landing/interactive-globe-background";
 import React, { useState } from "react"; 
 import { useRouter } from "next/navigation";
 
@@ -28,7 +29,8 @@ export default function LandingPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/5 text-foreground">
+    <div className="flex flex-col min-h-screen bg-gradient-to-br from-background via-background to-primary/5 text-foreground relative">
+      <InteractiveGlobeBackground />
       <header className="py-3 fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="bg-card/90 backdrop-blur-lg rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between">
@@ -64,7 +66,7 @@ export default function LandingPage() {
         </div>
       </header>
       
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col z-10"> {/* Added z-10 to ensure main content is above the -z-10 background */}
         <section className="w-full flex-grow flex items-center pt-28 sm:pt-32 px-4 sm:px-6 lg:px-8"> 
           <div className="container mx-auto">
             <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
@@ -104,19 +106,19 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section id="how-it-works" className="w-full py-12 sm:py-16">
+        <section id="how-it-works" className="w-full py-0 sm:py-0"> {/* Removed top/bottom padding */}
            <UniversityLogos />
         </section>
 
-        <section className="w-full">
+        <section className="w-full py-0 sm:py-0"> {/* Removed top/bottom padding */}
           <GlobalRankings />
         </section>
 
-        <section className="w-full">
+        <section className="w-full py-0 sm:py-0"> {/* Removed top/bottom padding */}
           <Newsletter />
         </section>
       </main>
-      <footer className="py-8 text-center text-muted-foreground text-sm">
+      <footer className="py-8 text-center text-muted-foreground text-sm z-10"> {/* Added z-10 */}
         © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
       </footer>
     </div>
