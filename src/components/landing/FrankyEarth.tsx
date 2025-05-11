@@ -131,7 +131,7 @@ const FrankyEarth: React.FC = () => {
 
     // Earth
     const earthGeometry = new THREE.SphereGeometry(5, 50, 50);
-    const earthTexturePath = '/assets/globe.jpg';
+    const earthTexturePath = '/assets/globe.jpg'; // Path relative to the 'public' directory
     const earthMaterial = new THREE.ShaderMaterial({
       vertexShader: earthVertexShader,
       fragmentShader: earthFragmentShader,
@@ -139,6 +139,7 @@ const FrankyEarth: React.FC = () => {
         globeTexture: {
           value: new THREE.TextureLoader().load(earthTexturePath, 
             (texture) => {
+                // Texture loaded successfully
                 // console.log("Globe texture loaded successfully from:", earthTexturePath);
             }, 
             undefined, // onProgress callback (optional)
