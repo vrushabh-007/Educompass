@@ -1,107 +1,109 @@
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { UniversityAPIResponse } from '@/lib/types'; 
 
 export async function GET(request: NextRequest) {
-  const supabase = createClient();
-  const { searchParams } = new URL(request.url);
+  try {
+    const supabase = createClient();
+    const { searchParams } = new URL(request.url);
 
-  const keyword = searchParams.get('keyword')?.toLowerCase();
-  const countryParam = searchParams.get('country');
-  const studyLevelParam = searchParams.get('studyLevel');
-  const subjectParam = searchParams.get('subject');
-  const minCGPAStr = searchParams.get('minCGPA');
-  const sortBy = searchParams.get('sortBy') || 'worldranking'; 
-  const scholarshipsParam = searchParams.get('scholarships');
+    const keyword = searchParams.get('keyword')?.toLowerCase();
+    const countryParam = searchParams.get('country');
+    const studyLevelParam = searchParams.get('studyLevel');
+    const subjectParam = searchParams.get('subject');
+    const minCGPAStr = searchParams.get('minCGPA');
+    const sortBy = searchParams.get('sortBy') || 'worldranking'; 
+    const scholarshipsParam = searchParams.get('scholarships');
 
-  // Start building the query
-  let query = supabase.from('University').select(`
-    id,
-    name,
-    country,
-    stateprovince,
-    studylevels, 
-    subjects,
-    mincgpa,
-    scholarships,
-    worldranking,
-    webpages,
-    "university-logo"
-  `);
+    let query = supabase.from('University').select(`
+      id,
+      name,
+      country,
+      stateprovince,
+      studylevels, 
+      subjects,
+      mincgpa,
+      scholarships,
+      worldranking,
+      webpages,
+      "university-logo"
+    `);
 
-  if (keyword) {
-    query = query.or(`name.ilike.%${keyword}%,stateprovince.ilike.%${keyword}%`);
-  }
-
-  if (countryParam && countryParam !== 'Other') { // Assuming 'Other' means no specific country filter
-    query = query.eq('country', countryParam);
-  }
-
-  if (studyLevelParam) {
-    // Correct usage for array column 'studylevels' containing string 'studyLevelParam'
-    query = query.cs('studylevels', [studyLevelParam]);
-  }
-  
-  if (subjectParam) {
-    // Correct usage for array column 'subjects' containing string 'subjectParam'
-    query = query.cs('subjects', [subjectParam]);
-  }
-
-  if (minCGPAStr) {
-    const minCGPA = parseFloat(minCGPAStr);
-    if (!isNaN(minCGPA)) {
-      query = query.gte('mincgpa', minCGPA);
+    if (keyword) {
+      query = query.or(`name.ilike.%${keyword}%,stateprovince.ilike.%${keyword}%,subjects.cs.{${keyword}}`);
     }
+
+    if (countryParam && countryParam !== 'Other' && countryParam !== 'All Countries' && countryParam !== '') {
+      query = query.eq('country', countryParam);
+    }
+
+    if (studyLevelParam && studyLevelParam !== '' && studyLevelParam !== 'All Levels') {
+      query = query.cs('studylevels', [studyLevelParam]);
+    }
+    
+    if (subjectParam && subjectParam !== '' && subjectParam !== 'All Subjects') {
+      query = query.cs('subjects', [subjectParam]);
+    }
+
+    if (minCGPAStr) {
+      const minCGPA = parseFloat(minCGPAStr);
+      if (!isNaN(minCGPA) && minCGPA !== 7.0) { // Assuming 7.0 is a default that means "no filter"
+        query = query.gte('mincgpa', minCGPA);
+      }
+    }
+
+    if (scholarshipsParam === 'true') {
+      query = query.is('scholarships', true);
+    }
+
+    if (sortBy === 'name') {
+      query = query.order('name', { ascending: true });
+    } else if (sortBy === 'mincgpa') {
+      query = query.order('mincgpa', { ascending: true, nullsFirst: false });
+    } else { // Default to worldranking
+      query = query.order('worldranking', { ascending: true, nullsFirst: false });
+    }
+    
+    const { data: universities, error } = await query;
+
+    if (error) {
+      console.error('Supabase error fetching universities:', error);
+      return NextResponse.json({ error: 'Failed to fetch universities from Supabase', details: error.message }, { status: 500 });
+    }
+
+    if (!universities) {
+      return NextResponse.json({ data: [] });
+    }
+
+    const transformedData: UniversityAPIResponse[] = universities.map(uni => ({
+      id: String(uni.id),
+      name: uni.name,
+      country: uni.country,
+      location: uni.stateprovince || undefined, // Handle null stateprovince
+      studylevels: uni.studylevels || [], 
+      subjects: uni.subjects || [], 
+      mincgpa: uni.mincgpa,
+      scholarships: uni.scholarships ?? false,
+      worldranking: uni.worldranking, 
+      webpages: uni.webpages || [], 
+      imageUrl: uni["university-logo"], 
+      description: undefined, 
+      acceptanceRate: undefined, 
+      tuitionFees: undefined, 
+      admissionDeadline: undefined, 
+      ranking_description: undefined, 
+      financialAidAvailable: uni.scholarships ?? false, 
+      popularPrograms: uni.subjects || [], 
+      campusLife: undefined, 
+      requiredExams: undefined, 
+    }));
+
+    return NextResponse.json({ data: transformedData });
+
+  } catch (e: any) {
+    console.error('Unexpected error in /api/universities route:', e);
+    return NextResponse.json({ error: 'An unexpected server error occurred.', details: e.message || String(e) }, { status: 500 });
   }
-
-  if (scholarshipsParam === 'true') {
-    query = query.is('scholarships', true);
-  }
-
-  if (sortBy === 'name') {
-    query = query.order('name', { ascending: true });
-  } else if (sortBy === 'worldranking') { 
-    query = query.order('worldranking', { ascending: true, nullsFirst: false });
-  } else if (sortBy === 'mincgpa') {
-    query = query.order('mincgpa', { ascending: true, nullsFirst: false });
-  } else {
-    // Default sort by worldranking
-    query = query.order('worldranking', { ascending: true, nullsFirst: false });
-  }
-  
-  const { data: universities, error } = await query;
-
-  if (error) {
-    console.error('Supabase error fetching universities:', error);
-    return NextResponse.json({ error: 'Failed to fetch universities', details: error.message }, { status: 500 });
-  }
-
-  if (!universities) {
-    return NextResponse.json({ data: [] });
-  }
-
-  const transformedData: UniversityAPIResponse[] = universities.map(uni => ({
-    id: String(uni.id),
-    name: uni.name,
-    country: uni.country,
-    location: uni.stateprovince, 
-    studylevels: uni.studylevels || [], 
-    subjects: uni.subjects || [], 
-    mincgpa: uni.mincgpa,
-    scholarships: uni.scholarships ?? false,
-    worldranking: uni.worldranking, 
-    webpages: uni.webpages || [], 
-    imageUrl: uni["university-logo"], 
-    description: undefined, 
-    acceptanceRate: undefined, 
-    tuitionFees: undefined, 
-    admissionDeadline: undefined, 
-    ranking_description: undefined, 
-    financialAidAvailable: uni.scholarships ?? false, 
-    popularPrograms: uni.subjects || [], 
-    campusLife: undefined, 
-    requiredExams: undefined, 
-  }));
-
-  return NextResponse.json({ data: transformedData });
 }
+
