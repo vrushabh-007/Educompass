@@ -5,6 +5,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Search as SearchIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image"; // Import next/image
 import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
 import UniversityLogos from "@/components/landing/university-logos";
@@ -73,8 +74,16 @@ export default function LandingPage() {
               
               <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
                 <div className="space-y-3">
-                  <h1 className="text-5xl font-bold tracking-tighter sm:text-6xl xl:text-7xl/none text-foreground">
-                    EDUCOMPASS
+                  <h1 className="text-foreground"> {/* Removed text sizing classes */}
+                    <Image
+                      src="https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos//image-removebg-preview.png"
+                      alt="EDUCOMPASS"
+                      width={452} 
+                      height={56} 
+                      className="block mx-auto lg:mx-0" // Use block for layout and centering/alignment
+                      priority
+                      data-ai-hint="text logo"
+                    />
                   </h1>
                   <p className="text-2xl md:text-3xl text-foreground/90">
                     Simple. Smart. <span className="text-accent">Seamless.</span>
@@ -106,15 +115,15 @@ export default function LandingPage() {
           </div>
         </section>
         
-        <section id="how-it-works" className="w-full py-0 sm:py-0">
+        <section id="how-it-works" className="w-full bg-transparent">
            <UniversityLogos />
         </section>
 
-        <section className="w-full py-0 sm:py-0">
+        <section className="w-full bg-transparent">
           <GlobalRankings />
         </section>
 
-        <section className="w-full py-0 sm:py-0">
+        <section className="w-full bg-transparent">
           <Newsletter />
         </section>
       </main>
