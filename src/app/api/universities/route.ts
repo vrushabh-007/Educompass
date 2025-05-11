@@ -35,9 +35,7 @@ export async function GET(request: NextRequest) {
         `name.ilike.%${keyword}%`,
         `stateprovince.ilike.%${keyword}%`
       ];
-      // Assuming 'subjects' is text[] and we want to check if the keyword is one of the subjects.
-      // PostgREST syntax for array contains (cs) requires the value to be in "value" format if it contains spaces.
-      const escapedKeyword = keyword.replace(/"/g, '""'); // Basic CSV-style escaping for quotes in PostgREST filter strings.
+      const escapedKeyword = keyword.replace(/"/g, '""'); 
       orFilterParts.push(`subjects.cs.{"${escapedKeyword}"}`);
       query = query.or(orFilterParts.join(','));
     }
@@ -47,13 +45,11 @@ export async function GET(request: NextRequest) {
     }
 
     if (studyLevelParam && studyLevelParam !== '' && studyLevelParam !== 'All Levels') {
-      // Ensure studylevels is an array column in your DB (e.g., text[])
-      query = query.cs('studylevels', [studyLevelParam]);
+      query = query.contains('studylevels', [studyLevelParam]);
     }
     
     if (subjectParam && subjectParam !== '' && subjectParam !== 'All Subjects') {
-      // Ensure subjects is an array column in your DB (e.g., text[])
-      query = query.cs('subjects', [subjectParam]);
+      query = query.contains('subjects', [subjectParam]);
     }
 
     if (minCGPAStr) {
@@ -113,7 +109,6 @@ export async function GET(request: NextRequest) {
 
   } catch (e: any) {
     console.error('Unexpected error in /api/universities route:', e);
-    // Ensure the error details are correctly passed. e.message might not always be a string.
     const detailMessage = typeof e.message === 'string' ? e.message : String(e);
     return NextResponse.json({ error: 'An unexpected server error occurred.', details: detailMessage }, { status: 500 });
   }
