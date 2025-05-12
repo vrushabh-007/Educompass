@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  @font-face {
+    font-family: 'GeistSans';
+    src: url('/fonts/GeistVariableVF.woff2') format('woff2-variations'), /* Modern browsers */
+         url('/fonts/GeistVariableVF.ttf') format('truetype-variations'); /* Fallback */
+    font-weight: 100 900; /* Assuming it's a variable font */
+    font-style: normal;
+    font-display: swap;
+  }
+
   :root {
     --background: 260 30% 12%; /* Deep dark purple */
     --foreground: 260 20% 90%; /* Light lavender / off-white */
@@ -99,5 +108,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'GeistSans', sans-serif; /* Apply GeistSans as the default font */
   }
 }

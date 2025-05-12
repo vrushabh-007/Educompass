@@ -1,6 +1,5 @@
 import type {Metadata} from 'next';
-import { GeistSans } from 'geist/font/sans';
-// import { GeistMono } from 'geist/font/mono'; // Removed as it's not found and not used
+// Removed direct import of GeistSans as we'll set it up via @font-face in globals.css
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { GenkitClientProvider } from '@/components/genkit-client-provider';
@@ -18,7 +17,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} antialiased font-sans`}> {/* Removed GeistMono.variable */}
+      {/* Apply 'font-sans' which will pick up the GeistSans definition from globals.css */}
+      <body className={`antialiased font-sans`}> 
         <GenkitClientProvider>
           {children}
           <Toaster />
