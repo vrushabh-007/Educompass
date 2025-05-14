@@ -1,3 +1,4 @@
+
 // src/components/landing/FrankyEarth.tsx
 'use client';
 
@@ -130,9 +131,8 @@ const FrankyEarth: React.FC = () => {
 
     // Earth
     const earthGeometry = new THREE.SphereGeometry(5, 50, 50);
-    // IMPORTANT: Changed texture path to a placeholder. 
-    // Replace with '/assets/globe.jpg' once the file is correctly placed in 'public/assets/globe.jpg'
-    const earthTexturePath = 'https://picsum.photos/seed/globe/1024/512'; 
+    // Updated texture path to use the Albedo texture from Supabase
+    const earthTexturePath = 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/earth/Albedo.jpg'; 
     const earthMaterial = new THREE.ShaderMaterial({
       vertexShader: earthVertexShader,
       fragmentShader: earthFragmentShader,
@@ -145,7 +145,7 @@ const FrankyEarth: React.FC = () => {
             }, 
             undefined, // onProgress callback (optional)
             (error) => { // onError callback
-                console.error(`Error loading globe texture from path: '${earthTexturePath}'. Please ensure the file exists in the 'public/assets' directory or the URL is valid. Error details:`, error);
+                console.error(`Error loading globe texture from URL: '${earthTexturePath}'. Please ensure the URL is valid and accessible. Error details:`, error);
             }
           )
         },
