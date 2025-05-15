@@ -9,13 +9,13 @@ import {
   LogOut,
   ListFilter,
   BookOpen,
-  Brain, // Brain icon is already imported
+  Brain, 
   LayoutDashboard,
   Users,
   University,
   BarChart3,
   FileText,
-  Menu // Added Menu icon for mobile trigger
+  Menu 
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,7 @@ import { Input } from "@/components/ui/input";
 import { AppLogo } from "@/components/shared/app-logo";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; // Added Sheet components
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; 
 
 // Mock user data, replace with actual auth state
 const MOCK_USER = {
@@ -190,7 +190,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40 overflow-auto">
+        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40 overflow-auto shadow-[inset_0_0_10px_0_hsl(var(--background)/0.6)]">
           {children}
         </main>
       </div>
