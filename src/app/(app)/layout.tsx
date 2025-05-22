@@ -89,7 +89,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
             >
               <Brain className="h-8 w-auto" />
-              <span className="text-xl font-bold">AI Recommendations</span>
+              <span className="text-xl font-bold hidden lg:inline">AI Recommendations</span>
             </Link>
           </div>
           <div className="flex-1">
