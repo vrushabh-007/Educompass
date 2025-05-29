@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -33,7 +32,7 @@ function UniversityLogos() {
       website: 'https://ethz.ch/'
     },
     'Harvard University': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png',
+      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png', // Note: Typo 'harverd' in original, kept for consistency with map
       website: 'https://www.harvard.edu/'
     },
     'Massachusetts Institute of Technology': {
@@ -49,7 +48,7 @@ function UniversityLogos() {
       website: 'https://www.ox.ac.uk/'
     },
     'Princeton University': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png',
+      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png', // Note: Typo 'priceton'
       website: 'https://www.princeton.edu/'
     },
     'Stanford University': {
@@ -71,44 +70,78 @@ function UniversityLogos() {
       try {
         setLoading(true);
         setError(null);
-        
-        const { data, error: queryError } = await supabase
+
+        const initialUniversities = Object.keys(universityData).map(name => ({
+          name,
+          country: 'N/A', // Default country, to be updated from DB if possible
+          logo: universityData[name].logo,
+          website: universityData[name].website,
+        }));
+
+        if (initialUniversities.length === 0) {
+            setUniversities([]);
+            setLoading(false);
+            return;
+        }
+
+        const { data: dbData, error: queryError } = await supabase
           .from('University')
           .select('name, country')
-          .order('name', { ascending: true });
+          .in('name', initialUniversities.map(u => u.name)); // Fetch only relevant unis
 
         if (queryError) {
-          console.error('Supabase query error:', queryError);
-          throw new Error(`Failed to fetch universities: ${queryError.message}`);
+          let detail = "No specific error message from Supabase.";
+          if (queryError.message) {
+            detail = queryError.message;
+          } else if (typeof queryError === 'object' && queryError !== null && Object.keys(queryError).length > 0) {
+            try {
+              detail = JSON.stringify(queryError);
+            } catch (e) {
+              detail = "Supabase error object could not be stringified.";
+            }
+          }
+          console.warn('Supabase query for university countries failed. Error object:', queryError);
+          console.warn('Falling back to predefined university data. Error details:', detail);
+          setError(`Could not fetch country data: ${detail}. Displaying default info.`);
+          setUniversities(initialUniversities); 
+        } else if (dbData && dbData.length > 0) {
+          const mergedUniversities = initialUniversities.map(initialUni => {
+            const dbUni = dbData.find(dbEntry => dbEntry.name === initialUni.name);
+            return {
+              ...initialUni,
+              country: dbUni?.country || initialUni.country, 
+            };
+          });
+          setUniversities(mergedUniversities);
+        } else {
+            console.warn('Supabase query returned no data for university countries. Using predefined data.');
+            setUniversities(initialUniversities);
         }
 
-        if (!data || data.length === 0) {
-          console.warn('No universities found in the database');
-          setUniversities([]);
-          setLoading(false);
-          return;
-        }
-
-        const universitiesWithData = data
-          .filter(uni => universityData[uni.name])
-          .map(uni => ({
-            name: uni.name,
-            country: uni.country,
-            logo: universityData[uni.name].logo,
-            website: universityData[uni.name].website
-          }));
-
-        setUniversities(universitiesWithData);
       } catch (err: any) {
-        console.error('Error in fetchUniversities:', err);
-        setError(err.message || 'Failed to fetch universities');
+        let errorMessage = 'Failed to process university data';
+        if (err instanceof Error && err.message) {
+            errorMessage = err.message;
+        } else if (typeof err === 'string') {
+            errorMessage = err;
+        }
+        console.error('Error in fetchUniversities (outer catch):', err);
+        setError(errorMessage);
+        
+        const fallbackUniversities = Object.keys(universityData).map(name => ({
+            name,
+            country: 'N/A',
+            logo: universityData[name].logo,
+            website: universityData[name].website,
+        }));
+        setUniversities(fallbackUniversities);
       } finally {
         setLoading(false);
       }
     }
 
     fetchUniversities();
-  }, [supabase]);
+  }, [supabase]); // universityData is stable, no need to add as dep
 
   const settings = {
     dots: false,
@@ -159,14 +192,15 @@ function UniversityLogos() {
     );
   }
 
-  if (error) {
+  // Displaying an error message on the UI if one was set
+  if (error && universities.length === 0) { // Only show critical error if no unis can be displayed
     return (
       <div className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className={`text-3xl font-bold ${textColor} mb-4`}>Featured Universities</h2>
             <p className="text-lg text-destructive">Error: {error}</p>
-            <p className={`text-sm ${mutedTextColor} mt-2`}>Please check the browser console for more details.</p>
+            <p className={`text-sm ${mutedTextColor} mt-2`}>Could not load university data. Please check the console for details.</p>
           </div>
         </div>
       </div>
@@ -193,6 +227,7 @@ function UniversityLogos() {
           <h2 className={`text-3xl font-bold ${textColor} mb-4`}>Featured Universities</h2>
           <p className={`text-lg ${mutedTextColor}`}>Explore opportunities at world-renowned institutions</p>
         </div>
+        {error && <p className="text-center text-sm text-amber-500 mb-4">Note: {error}</p>}
         <div className="relative">
           <Slider {...settings}>
             {universities.map((uni, index) => (
@@ -204,8 +239,9 @@ function UniversityLogos() {
                   className="block group transform transition-all duration-300 hover:scale-105 h-full"
                   onClick={(e) => {
                     if (e.button === 1 || e.metaKey || e.ctrlKey) {
-                      return;
+                      return; // Allow middle-click/ctrl-click to open in new tab
                     }
+                    // For left-click, prevent default and use window.open to ensure _blank target
                     e.preventDefault();
                     window.open(uni.website, '_blank');
                   }}
@@ -242,4 +278,3 @@ function UniversityLogos() {
 }
 
 export default UniversityLogos;
-
