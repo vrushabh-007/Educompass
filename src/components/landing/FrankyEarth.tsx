@@ -131,21 +131,24 @@ const FrankyEarth: React.FC = () => {
 
     // Earth
     const earthGeometry = new THREE.SphereGeometry(5, 50, 50);
-    // Updated texture path to use the Albedo texture from Supabase
+    
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = 'anonymous'; // Add this line for CORS
+
     const earthTexturePath = 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/earth/Albedo.jpg'; 
     const earthMaterial = new THREE.ShaderMaterial({
       vertexShader: earthVertexShader,
       fragmentShader: earthFragmentShader,
       uniforms: {
         globeTexture: {
-          value: new THREE.TextureLoader().load(earthTexturePath, 
+          value: textureLoader.load(earthTexturePath, 
             (texture) => {
                 // Texture loaded successfully
                 // console.log("Globe texture loaded successfully from:", earthTexturePath);
             }, 
             undefined, // onProgress callback (optional)
             (error) => { // onError callback
-                console.error(`Error loading globe texture from URL: '${earthTexturePath}'. Please ensure the URL is valid and accessible. Error details:`, error);
+                console.error(`Error loading globe texture from URL: '${earthTexturePath}'. Please ensure the URL is valid, accessible, and CORS is configured correctly on the server. Error details:`, error);
             }
           )
         },
