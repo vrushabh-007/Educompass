@@ -83,14 +83,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <aside className="hidden border-r bg-card md:block">
         <div className="flex h-full max-h-screen flex-col gap-2">
           <div className="flex h-16 items-center border-b px-4 lg:px-6">
-            {/* Replaced AppLogo with AI Recommendations link */}
-            <Link
-              href="/recommendations"
-              className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
-            >
-              <Brain className="h-8 w-auto" />
-              <span className="text-xl font-bold hidden lg:inline">AI Recommendations</span>
-            </Link>
+            <AppLogo />
           </div>
           <div className="flex-1">
             <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
@@ -126,15 +119,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </SheetTrigger>
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
-                <div className="flex h-16 items-center border-b px-4 lg:px-6 mb-4">
-                  <Link
-                    href="/recommendations"
-                    className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity"
-                    onClick={() => setIsMobileNavOpen(false)}
-                  >
-                    <Brain className="h-8 w-auto" />
-                    <span className="text-xl font-bold">AI Recommendations</span>
-                  </Link>
+                <div className="flex h-16 items-center border-b px-4 lg:px-6 mb-4" onClick={() => setIsMobileNavOpen(false)}>
+                  <AppLogo />
                 </div>
                 {filteredNavItems.map((item) => (
                   <Link
