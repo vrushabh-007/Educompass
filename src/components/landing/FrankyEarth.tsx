@@ -1,12 +1,9 @@
-
 // src/components/landing/FrankyEarth.tsx
 'use client';
 
 import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-// GSAP is not used for scroll animation in this version, consider removing if not needed for other interactions.
-// import gsap from 'gsap';
 
 // HSL to RGB conversion function (values 0-1)
 function hslToRgb(h: number, s: number, l: number): [number, number, number] {
@@ -22,47 +19,6 @@ function hslToRgb(h: number, s: number, l: number): [number, number, number] {
 // Theme colors converted to RGB [0-1]
 // Primary: HSL(275, 70%, 60%) -> RGB(165, 82, 224)
 const primaryColorRGB = hslToRgb(275, 70, 60); // approx [0.647, 0.321, 0.878]
-// Accent for Earth's internal atmosphere: HSL(275, 70%, 70%) -> RGB(195, 143, 224)
-const earthAtmosphereColorRGB = hslToRgb(275, 70, 70); // approx [0.765, 0.561, 0.878]
-
-
-// Vertex shader for Earth
-const earthVertexShader = `
-  varying vec2 vertexUV;
-  varying vec3 vertexNormal;
-
-  void main() {
-    vertexUV = uv;
-    vertexNormal = normalize(normalMatrix * normal);
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`;
-
-// Fragment shader for Earth
-const earthFragmentShader = `
-  uniform sampler2D globeTexture;
-  uniform vec3 customAtmosphereColor; // Color for the glow on Earth itself
-  varying vec2 vertexUV;
-  varying vec3 vertexNormal;
-
-  void main() {
-    float intensity = 1.05 - dot(vertexNormal, vec3(0.0, 0.0, 1.0));
-    vec3 atmosphereGlow = customAtmosphereColor * pow(intensity, 1.5);
-    
-    vec4 textureColor = texture2D(globeTexture, vertexUV);
-    // If texture is mostly transparent (e.g. water part of a typical map), 
-    // make it dark purple instead of black.
-    // This simple check might need adjustment based on the actual texture.
-    // For a globe.jpg, this might make landmasses have a purple tint where oceans are.
-    // If the texture is opaque, this will mostly affect edges.
-    vec3 baseColor = textureColor.rgb;
-    if (textureColor.a < 0.5) { // Heuristic for "transparent" parts if using a map with alpha
-        baseColor = vec3(${primaryColorRGB[0]}, ${primaryColorRGB[1]}, ${primaryColorRGB[2]}) * 0.2; // Dark purple
-    }
-    
-    gl_FragColor = vec4(atmosphereGlow + baseColor, 1.0);
-  }
-`;
 
 // Vertex shader for Atmosphere
 const atmosphereVertexShader = `
@@ -129,33 +85,10 @@ const FrankyEarth: React.FC = () => {
     groupRef.current = group;
     scene.add(group);
 
-    // Earth
+    // Earth - Using a simple MeshBasicMaterial with a theme color
     const earthGeometry = new THREE.SphereGeometry(5, 50, 50);
-    
-    const textureLoader = new THREE.TextureLoader();
-    textureLoader.crossOrigin = 'anonymous'; // Add this line for CORS
-
-    const earthTexturePath = 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/earth/Albedo.jpg'; 
-    const earthMaterial = new THREE.ShaderMaterial({
-      vertexShader: earthVertexShader,
-      fragmentShader: earthFragmentShader,
-      uniforms: {
-        globeTexture: {
-          value: textureLoader.load(earthTexturePath, 
-            (texture) => {
-                // Texture loaded successfully
-                // console.log("Globe texture loaded successfully from:", earthTexturePath);
-            }, 
-            undefined, // onProgress callback (optional)
-            (error) => { // onError callback
-                console.error(`Error loading globe texture from URL: '${earthTexturePath}'. Please ensure the URL is valid, accessible, and CORS is configured correctly on the server. Error details:`, error);
-            }
-          )
-        },
-        customAtmosphereColor: {
-          value: new THREE.Vector3(...earthAtmosphereColorRGB),
-        }
-      },
+    const earthMaterial = new THREE.MeshBasicMaterial({ 
+        color: new THREE.Color(`hsl(260, 30%, 18%)`) // A dark purple from the theme
     });
     const earth = new THREE.Mesh(earthGeometry, earthMaterial);
     group.add(earth);
