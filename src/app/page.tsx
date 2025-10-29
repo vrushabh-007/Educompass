@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import InteractiveGlobeBackground from "@/components/landing/interactive-globe-background";
 import React, { useState } from "react"; 
 import { useRouter } from "next/navigation";
+import AlumniNetwork from "@/components/landing/AlumniNetwork";
 
 
 export default function LandingPage() {
@@ -124,6 +125,10 @@ export default function LandingPage() {
         </section>
 
         <section className="w-full bg-transparent">
+          <AlumniNetwork />
+        </section>
+
+        <section className="w-full bg-transparent">
           <Newsletter />
         </section>
       </main>
@@ -133,4 +138,3 @@ export default function LandingPage() {
     </div>
   );
 }
-
