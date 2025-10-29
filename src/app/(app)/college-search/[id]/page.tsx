@@ -189,23 +189,23 @@ export default function CollegeDetailPage() {
           </TabsContent>
 
           <TabsContent value="alumni" className="p-6 space-y-4">
-            <h2 className="text-2xl font-semibold text-primary flex items-center"><UserCheck className="mr-2 h-6 w-6"/>Alumni Network</h2>
-            <p className="text-muted-foreground">Connect with notable alumni who have walked these halls.</p>
+            <h2 className="text-2xl font-semibold text-primary flex items-center"><UserCheck className="mr-3 h-7 w-7"/>Notable Alumni Network</h2>
+            <p className="text-muted-foreground">Connect with notable alumni who have walked these halls for mentorship and career insights.</p>
             {college.alumni && college.alumni.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
                 {college.alumni.map((alumnus) => (
-                  <Card key={alumnus.name} className="shadow-md hover:shadow-lg transition-shadow">
+                  <Card key={alumnus.name} className="shadow-md hover:shadow-lg transition-shadow bg-card">
                     <CardContent className="p-4 flex items-center gap-4">
-                      <Avatar className="h-14 w-14 border-2 border-primary">
+                      <Avatar className="h-16 w-16 border-2 border-primary/70">
                         <AvatarImage src={alumnus.avatarUrl} alt={alumnus.name} data-ai-hint="person face" />
                         <AvatarFallback>{alumnus.name.charAt(0)}</AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
                         <p className="font-semibold text-foreground">{alumnus.name}</p>
-                        <p className="text-xs text-muted-foreground">{alumnus.headline}</p>
-                        <Button variant="link" size="sm" asChild className="p-0 h-auto mt-1">
-                          <a href={alumnus.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center">
-                            <Linkedin className="h-4 w-4 mr-1" /> Connect
+                        <p className="text-sm text-muted-foreground">{alumnus.headline}</p>
+                        <Button variant="link" size="sm" asChild className="p-0 h-auto mt-2">
+                          <a href={alumnus.linkedinUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-primary">
+                            <Linkedin className="h-4 w-4 mr-1.5" /> Connect
                           </a>
                         </Button>
                       </div>
@@ -214,7 +214,13 @@ export default function CollegeDetailPage() {
                 ))}
               </div>
             ) : (
-              <p className="text-muted-foreground pt-4">No alumni information available for this college yet.</p>
+               <Card className="text-center py-10 bg-muted/50">
+                <CardContent>
+                  <Users className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground">Alumni Information Coming Soon</h3>
+                  <p className="text-muted-foreground mt-1">No alumni information is available for this college yet. Check back later!</p>
+                </CardContent>
+              </Card>
             )}
           </TabsContent>
 

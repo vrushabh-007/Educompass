@@ -5,6 +5,7 @@ export interface Alumni {
   headline: string;
   linkedinUrl: string;
   avatarUrl?: string;
+  institution?: string;
 }
 
 export interface College {
@@ -135,4 +136,3 @@ export interface UniversityAPIResponse {
   campusLife?: string | null;
   requiredExams?: string[] | null;
 }
-

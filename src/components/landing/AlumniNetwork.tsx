@@ -38,9 +38,9 @@ function AlumniNetwork() {
     <div className="py-12">
       <div className="container mx-auto px-4 md:px-8 text-center">
         <UserCheck className="mx-auto h-12 w-12 text-accent mb-4" />
-        <h2 className="text-3xl font-bold text-foreground mb-4">Connect with a Global Alumni Network</h2>
+        <h2 className="text-3xl font-bold text-foreground mb-4">Tap Into a Global Alumni Network</h2>
         <p className="text-lg text-muted-foreground mb-10 max-w-3xl mx-auto">
-          Gain invaluable insights and mentorship by connecting with successful graduates from top universities who are now leaders in their fields.
+          Gain invaluable career insights and mentorship opportunities by connecting with successful graduates from top universities who are now leaders in their fields.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -53,7 +53,7 @@ function AlumniNetwork() {
                 </Avatar>
                 <h3 className="text-lg font-semibold text-foreground">{alum.name}</h3>
                 <p className="text-sm text-muted-foreground">{alum.headline}</p>
-                <p className="text-xs text-accent mt-1">{alum.institution}</p>
+                <p className="text-xs text-accent mt-1 font-semibold">{alum.institution}</p>
                 <Button variant="ghost" size="sm" asChild className="mt-4 text-primary hover:bg-primary/10 hover:text-primary">
                   <a href="#" target="_blank" rel="noopener noreferrer">
                     <Linkedin className="mr-2 h-4 w-4" />
