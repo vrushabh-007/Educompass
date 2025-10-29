@@ -1,5 +1,12 @@
 
 
+export interface Alumni {
+  name: string;
+  headline: string;
+  linkedinUrl: string;
+  avatarUrl?: string;
+}
+
 export interface College {
   id: string;
   name: string;
@@ -20,6 +27,7 @@ export interface College {
   website?: string; // Mapped from webpages[0]
   admissionDeadline?: string; // Not in schema image
   requiredExams?: string[]; // Not in schema image
+  alumni?: Alumni[]; // For the new Alumni Network feature
   _aiIsGoodFit?: boolean; // Internal helper for AI recommendation display
   _aiDescription?: string; // Internal helper for AI recommendation display
 }

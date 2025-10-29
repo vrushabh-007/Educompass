@@ -16,6 +16,11 @@ export const mockColleges: College[] = [
     website: 'https://web.mit.edu/',
     admissionDeadline: 'January 1',
     requiredExams: ['SAT', 'ACT', 'TOEFL', 'IELTS'],
+    alumni: [
+      { name: 'Richard Feynman', headline: 'Theoretical Physicist', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/feynman/40/40' },
+      { name: 'Buzz Aldrin', headline: 'Astronaut', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/aldrin/40/40' },
+      { name: 'Kofi Annan', headline: 'Former UN Secretary-General', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/annan/40/40' },
+    ]
   },
   {
     id: '2',
@@ -32,6 +37,11 @@ export const mockColleges: College[] = [
     website: 'https://www.stanford.edu/',
     admissionDeadline: 'January 5',
     requiredExams: ['SAT', 'ACT', 'TOEFL', 'IELTS'],
+    alumni: [
+        { name: 'Larry Page', headline: 'Co-founder of Google', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/page/40/40' },
+        { name: 'Sergey Brin', headline: 'Co-founder of Google', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/brin/40/40' },
+        { name: 'Reese Witherspoon', headline: 'Actress and Producer', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/witherspoon/40/40' },
+    ]
   },
   {
     id: '3',
@@ -48,6 +58,10 @@ export const mockColleges: College[] = [
     website: 'https://www.iitb.ac.in/',
     admissionDeadline: 'Varies (JEE)',
     requiredExams: ['JEE Advanced'],
+    alumni: [
+        { name: 'Nandan Nilekani', headline: 'Co-founder of Infosys', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/nilekani/40/40' },
+        { name: 'Parag Agrawal', headline: 'Former CEO of Twitter', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/agrawal/40/40' },
+    ]
   },
   {
     id: '4',
