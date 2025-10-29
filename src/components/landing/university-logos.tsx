@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-import { createClient } from '@/lib/supabase/client';
 import Image from 'next/image';
 
 interface UniversityInfo {
@@ -18,130 +17,71 @@ interface UniversityInfo {
 function UniversityLogos() {
   const [universities, setUniversities] = useState<UniversityInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const supabase = createClient();
 
   // Map of university names to their logo URLs and websites
-  const universityData: Record<string, { logo: string; website: string }> = {
+  const universityData: Record<string, { logo: string; website: string; country: string; }> = {
     'University of Cambridge': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png',
-      website: 'https://www.cam.ac.uk/'
+      logo: 'https://picsum.photos/seed/cambridge-logo/100/100',
+      website: 'https://www.cam.ac.uk/',
+      country: 'United Kingdom'
     },
     'ETH Zurich': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/eth-logo.png',
-      website: 'https://ethz.ch/'
+      logo: 'https://picsum.photos/seed/eth-logo/100/100',
+      website: 'https://ethz.ch/',
+      country: 'Switzerland'
     },
     'Harvard University': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png', // Note: Typo 'harverd' in original, kept for consistency with map
-      website: 'https://www.harvard.edu/'
+      logo: 'https://picsum.photos/seed/harvard-logo/100/100',
+      website: 'https://www.harvard.edu/',
+      country: 'USA'
     },
     'Massachusetts Institute of Technology': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
-      website: 'https://www.mit.edu/'
+      logo: 'https://picsum.photos/seed/mit-logo/100/100',
+      website: 'https://www.mit.edu/',
+      country: 'USA'
     },
     'National University of Singapore': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/nus-logo.png',
-      website: 'https://www.nus.edu.sg/'
+      logo: 'https://picsum.photos/seed/nus-logo/100/100',
+      website: 'https://www.nus.edu.sg/',
+      country: 'Singapore'
     },
     'University of Oxford': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png',
-      website: 'https://www.ox.ac.uk/'
+      logo: 'https://picsum.photos/seed/oxford-logo/100/100',
+      website: 'https://www.ox.ac.uk/',
+      country: 'United Kingdom'
     },
     'Princeton University': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png', // Note: Typo 'priceton'
-      website: 'https://www.princeton.edu/'
+      logo: 'https://picsum.photos/seed/princeton-logo/100/100',
+      website: 'https://www.princeton.edu/',
+      country: 'USA'
     },
     'Stanford University': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png',
-      website: 'https://www.stanford.edu/'
+      logo: 'https://picsum.photos/seed/stanford-logo/100/100',
+      website: 'https://www.stanford.edu/',
+      country: 'USA'
     },
     'University of Tokyo': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/tokyo-logo.png',
-      website: 'https://www.u-tokyo.ac.jp/'
+      logo: 'https://picsum.photos/seed/tokyo-logo/100/100',
+      website: 'https://www.u-tokyo.ac.jp/',
+      country: 'Japan'
     },
     'Yale University': {
-      logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/yale-logo.png',
-      website: 'https://www.yale.edu/'
+      logo: 'https://picsum.photos/seed/yale-logo/100/100',
+      website: 'https://www.yale.edu/',
+      country: 'USA'
     }
   };
 
   useEffect(() => {
-    async function fetchUniversities() {
-      try {
-        setLoading(true);
-        setError(null);
-
-        const initialUniversities = Object.keys(universityData).map(name => ({
-          name,
-          country: 'N/A', // Default country, to be updated from DB if possible
-          logo: universityData[name].logo,
-          website: universityData[name].website,
-        }));
-
-        if (initialUniversities.length === 0) {
-            setUniversities([]);
-            setLoading(false);
-            return;
-        }
-
-        const { data: dbData, error: queryError } = await supabase
-          .from('University')
-          .select('name, country')
-          .in('name', initialUniversities.map(u => u.name)); // Fetch only relevant unis
-
-        if (queryError) {
-          let detail = "No specific error message from Supabase.";
-          if (queryError.message) {
-            detail = queryError.message;
-          } else if (typeof queryError === 'object' && queryError !== null && Object.keys(queryError).length > 0) {
-            try {
-              detail = JSON.stringify(queryError);
-            } catch (e) {
-              detail = "Supabase error object could not be stringified.";
-            }
-          }
-          console.warn('Supabase query for university countries failed. Error object:', queryError);
-          console.warn('Falling back to predefined university data. Error details:', detail);
-          setError(`Could not fetch country data: ${detail}. Displaying default info.`);
-          setUniversities(initialUniversities); 
-        } else if (dbData && dbData.length > 0) {
-          const mergedUniversities = initialUniversities.map(initialUni => {
-            const dbUni = dbData.find(dbEntry => dbEntry.name === initialUni.name);
-            return {
-              ...initialUni,
-              country: dbUni?.country || initialUni.country, 
-            };
-          });
-          setUniversities(mergedUniversities);
-        } else {
-            console.warn('Supabase query returned no data for university countries. Using predefined data.');
-            setUniversities(initialUniversities);
-        }
-
-      } catch (err: any) {
-        let errorMessage = 'Failed to process university data';
-        if (err instanceof Error && err.message) {
-            errorMessage = err.message;
-        } else if (typeof err === 'string') {
-            errorMessage = err;
-        }
-        console.error('Error in fetchUniversities (outer catch):', err);
-        setError(errorMessage);
-        
-        const fallbackUniversities = Object.keys(universityData).map(name => ({
-            name,
-            country: 'N/A',
-            logo: universityData[name].logo,
-            website: universityData[name].website,
-        }));
-        setUniversities(fallbackUniversities);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchUniversities();
-  }, [supabase]); // universityData is stable, no need to add as dep
+    const loadedUniversities = Object.keys(universityData).map(name => ({
+        name,
+        country: universityData[name].country,
+        logo: universityData[name].logo,
+        website: universityData[name].website,
+    }));
+    setUniversities(loadedUniversities);
+    setLoading(false);
+  }, []); // universityData is stable, no need to add as dep
 
   const settings = {
     dots: false,
@@ -192,21 +132,6 @@ function UniversityLogos() {
     );
   }
 
-  // Displaying an error message on the UI if one was set
-  if (error && universities.length === 0) { // Only show critical error if no unis can be displayed
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className={`text-3xl font-bold ${textColor} mb-4`}>Featured Universities</h2>
-            <p className="text-lg text-destructive">Error: {error}</p>
-            <p className={`text-sm ${mutedTextColor} mt-2`}>Could not load university data. Please check the console for details.</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (universities.length === 0) {
     return (
       <div className="py-12">
@@ -227,7 +152,6 @@ function UniversityLogos() {
           <h2 className={`text-3xl font-bold ${textColor} mb-4`}>Featured Universities</h2>
           <p className={`text-lg ${mutedTextColor}`}>Explore opportunities at world-renowned institutions</p>
         </div>
-        {error && <p className="text-center text-sm text-amber-500 mb-4">Note: {error}</p>}
         <div className="relative">
           <Slider {...settings}>
             {universities.map((uni, index) => (

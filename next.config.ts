@@ -17,12 +17,6 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'bbxmsfmikhbvbweaderx.supabase.co',
-        port: '',
-        pathname: '/**',
-      }
     ],
   },
 };

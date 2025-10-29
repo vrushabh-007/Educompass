@@ -5,7 +5,7 @@ export function AppLogo() {
   return (
     <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
       <Image
-        src="https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/educompass-logo.png"
+        src="https://picsum.photos/seed/edu-logo/32/32"
         alt="EDUCOMPASS Icon"
         width={32}
         height={32}
@@ -13,7 +13,7 @@ export function AppLogo() {
         data-ai-hint="compass logo"
       />
       <Image
-        src="https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos//image-removebg-preview.png"
+        src="https://picsum.photos/seed/edu-text/226/28"
         alt="EDUCOMPASS"
         width={226} 
         height={28}

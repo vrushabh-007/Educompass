@@ -1,11 +1,37 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import type { UniversityAPIResponse } from '@/lib/types'; 
+import { mockColleges } from '@/data/mock-colleges';
+import type { UniversityAPIResponse, College } from '@/lib/types';
+
+// Function to convert our detailed College mock data to the flatter UniversityAPIResponse
+const transformCollegeToAPIResponse = (college: College): UniversityAPIResponse => {
+  return {
+    id: college.id,
+    name: college.name,
+    country: college.country,
+    location: college.location,
+    studylevels: ['Bachelors', 'Masters', 'PhD'], // Mock data, not in original College type
+    subjects: college.popularPrograms || [],
+    mincgpa: 7.0, // Mock data, not in original College type
+    scholarships: college.financialAidAvailable,
+    worldranking: parseInt(college.ranking?.match(/\d+/)?.[0] || '0', 10) || undefined,
+    webpages: college.website ? [college.website] : [],
+    imageUrl: college.imageUrl,
+    description: college.description,
+    acceptanceRate: college.acceptanceRate,
+    tuitionFees: college.tuitionFees,
+    admissionDeadline: college.admissionDeadline,
+    ranking_description: college.ranking,
+    financialAidAvailable: college.financialAidAvailable,
+    popularPrograms: college.popularPrograms,
+    campusLife: college.campusLife,
+    requiredExams: college.requiredExams,
+  };
+};
+
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient();
     const { searchParams } = new URL(request.url);
 
     const keyword = searchParams.get('keyword')?.toLowerCase();
@@ -13,99 +39,55 @@ export async function GET(request: NextRequest) {
     const studyLevelParam = searchParams.get('studyLevel');
     const subjectParam = searchParams.get('subject');
     const minCGPAStr = searchParams.get('minCGPA');
-    const sortBy = searchParams.get('sortBy') || 'worldranking'; 
+    const sortBy = searchParams.get('sortBy') || 'worldranking';
     const scholarshipsParam = searchParams.get('scholarships');
 
-    let query = supabase.from('University').select(`
-      id,
-      name,
-      country,
-      stateprovince,
-      studylevels, 
-      subjects,
-      mincgpa,
-      scholarships,
-      worldranking,
-      webpages,
-      "university-logo"
-    `);
+    let filteredData = mockColleges.map(transformCollegeToAPIResponse);
 
     if (keyword) {
-      const orFilterParts = [
-        `name.ilike.%${keyword}%`,
-        `stateprovince.ilike.%${keyword}%`
-      ];
-      const escapedKeyword = keyword.replace(/"/g, '""'); 
-      orFilterParts.push(`subjects.cs.{"${escapedKeyword}"}`);
-      query = query.or(orFilterParts.join(','));
+      filteredData = filteredData.filter(uni =>
+        uni.name.toLowerCase().includes(keyword) ||
+        uni.location?.toLowerCase().includes(keyword) ||
+        uni.subjects?.some(s => s.toLowerCase().includes(keyword))
+      );
     }
 
     if (countryParam && countryParam !== 'Other' && countryParam !== 'All Countries' && countryParam !== '') {
-      query = query.eq('country', countryParam);
+      filteredData = filteredData.filter(uni => uni.country === countryParam);
     }
-
+    
     if (studyLevelParam && studyLevelParam !== '' && studyLevelParam !== 'All Levels') {
-      query = query.contains('studylevels', [studyLevelParam]);
+        // This is mock filtering as study levels are not in our base mock data
+        // For demonstration, we'll just let it pass or you could implement specific logic
     }
     
     if (subjectParam && subjectParam !== '' && subjectParam !== 'All Subjects') {
-      query = query.contains('subjects', [subjectParam]);
+        filteredData = filteredData.filter(uni => uni.subjects?.includes(subjectParam));
     }
 
     if (minCGPAStr) {
       const minCGPA = parseFloat(minCGPAStr);
-      if (!isNaN(minCGPA) && minCGPA !== 7.0) { 
-        query = query.gte('mincgpa', minCGPA);
+      if (!isNaN(minCGPA) && minCGPA !== 7.0) {
+        // Mock filtering for CGPA as it's not in the base mock data
+        // This will be a placeholder logic
+        filteredData = filteredData.filter(uni => (uni.mincgpa || 0) >= minCGPA);
       }
     }
 
     if (scholarshipsParam === 'true') {
-      query = query.is('scholarships', true);
-    }
-
-    if (sortBy === 'name') {
-      query = query.order('name', { ascending: true });
-    } else if (sortBy === 'mincgpa') {
-      query = query.order('mincgpa', { ascending: true, nullsFirst: false });
-    } else { // Default to worldranking
-      query = query.order('worldranking', { ascending: true, nullsFirst: false });
+      filteredData = filteredData.filter(uni => uni.scholarships === true);
     }
     
-    const { data: universities, error } = await query;
-
-    if (error) {
-      console.error('Supabase error fetching universities:', error);
-      return NextResponse.json({ error: 'Failed to fetch universities from Supabase', details: error.message }, { status: 500 });
+    if (sortBy === 'name') {
+        filteredData.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'mincgpa') {
+        // Sorting by a mock field
+        filteredData.sort((a, b) => (a.mincgpa || 10) - (b.mincgpa || 10));
+    } else { // Default to worldranking
+        filteredData.sort((a, b) => (a.worldranking || 9999) - (b.worldranking || 9999));
     }
 
-    if (!universities) {
-      return NextResponse.json({ data: [] });
-    }
-
-    const transformedData: UniversityAPIResponse[] = universities.map(uni => ({
-      id: String(uni.id),
-      name: uni.name,
-      country: uni.country,
-      location: uni.stateprovince || undefined, 
-      studylevels: uni.studylevels || [], 
-      subjects: uni.subjects || [], 
-      mincgpa: uni.mincgpa,
-      scholarships: uni.scholarships ?? false,
-      worldranking: uni.worldranking, 
-      webpages: uni.webpages || [], 
-      imageUrl: uni["university-logo"], 
-      description: undefined, 
-      acceptanceRate: undefined, 
-      tuitionFees: undefined, 
-      admissionDeadline: undefined, 
-      ranking_description: undefined, 
-      financialAidAvailable: uni.scholarships ?? false, 
-      popularPrograms: uni.subjects || [], 
-      campusLife: undefined, 
-      requiredExams: undefined, 
-    }));
-
-    return NextResponse.json({ data: transformedData });
+    return NextResponse.json({ data: filteredData });
 
   } catch (e: any) {
     console.error('Unexpected error in /api/universities route:', e);

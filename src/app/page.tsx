@@ -77,7 +77,7 @@ export default function LandingPage() {
                 <div className="space-y-3">
                   <h1 className="text-foreground"> {/* Removed text sizing classes */}
                     <Image
-                      src="https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos//image-removebg-preview.png"
+                      src="https://picsum.photos/seed/educompass-title/452/56"
                       alt="EDUCOMPASS"
                       width={452} 
                       height={56} 
