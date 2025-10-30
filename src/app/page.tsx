@@ -1,11 +1,9 @@
-
-
 "use client"; 
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Search as SearchIcon } from "lucide-react";
+import { ArrowRight, Briefcase, Mail, Phone, Search as SearchIcon } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image"; // Import next/image
+import Image from "next/image"; 
 import { AppLogo } from "@/components/shared/app-logo";
 import { HeroSearchForm } from "@/components/landing/hero-search-form";
 import UniversityLogos from "@/components/landing/university-logos";
@@ -30,111 +28,95 @@ export default function LandingPage() {
 
 
   return (
-    <div className="flex flex-col min-h-screen text-foreground relative">
-      <div className="absolute inset-0 -z-10 h-full w-full bg-background">
-        <Image 
-          src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/earth/bg.jpg" // Using image from 'earth' bucket
-          alt="Earth background"
-          fill
-          style={{ objectFit: 'cover' }}
-          className="opacity-20"
-          data-ai-hint="earth space"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-      </div>
-
-      <header className="py-3 fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
-        <div className="container mx-auto">
-          <div className="bg-transparent/30 backdrop-blur-md rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between border border-border/30">
-            <div className="flex items-center">
-              <AppLogo />
+    <div className="flex flex-col min-h-screen bg-secondary/50 text-foreground">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-md">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Top bar */}
+          <div className="flex justify-between items-center py-2 border-b border-border/50 text-xs text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <a href="tel:+1-545-748-3030" className="flex items-center gap-1.5 hover:text-primary transition-colors">
+                <Phone className="h-3 w-3"/>
+                <span>+1-545-748-3030</span>
+              </a>
+              <a href="mailto:info@educompass.com" className="hidden sm:flex items-center gap-1.5 hover:text-primary transition-colors">
+                <Mail className="h-3 w-3"/>
+                <span>info@educompass.com</span>
+              </a>
             </div>
-
-            <form onSubmit={handleSearchSubmit} className="relative mx-2 sm:mx-4 flex-grow max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
-              <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search colleges, courses..."
-                className="w-full pl-9 pr-3 py-2 h-9 sm:h-10 rounded-full bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary text-sm"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-              />
-            </form>
-
-            <nav className="flex items-center gap-1 sm:gap-2">
-              <Button variant="ghost" size="sm" asChild className="rounded-full text-xs sm:text-sm text-foreground/80 hover:text-foreground hover:bg-transparent/20 px-2 sm:px-3">
-                <Link href="/login">
-                  Login
-                </Link>
-              </Button>
-              <Button asChild variant="default" size="sm" className="rounded-full text-xs sm:text-sm bg-primary hover:bg-primary/90 text-primary-foreground px-3 sm:px-4">
-                <Link href="/register" className="flex items-center">
-                  Get Started
-                  <ArrowRight className="ml-1 sm:ml-1.5 h-3 w-3 sm:h-4 sm:w-4" />
-                </Link>
-              </Button>
+            <div className="hidden sm:flex items-center gap-1.5">
+               <Briefcase className="h-3 w-3" />
+               <span>Start your journey today</span>
+            </div>
+          </div>
+          {/* Main header */}
+          <div className="flex items-center justify-between py-3">
+             <AppLogo />
+            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+              <Link href="/dashboard" className="hover:text-primary transition-colors">Dashboard</Link>
+              <Link href="/college-search" className="hover:text-primary transition-colors">Platform</Link>
+              <Link href="/sop-assistant" className="hover:text-primary transition-colors">SOP Assistant</Link>
+              <Link href="/alumni-network" className="hover:text-primary transition-colors">Alumni</Link>
             </nav>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register">Get Started</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>
       
-      <main className="flex-1 flex flex-col z-10">
-        <section className="w-full flex-grow flex items-center pt-28 sm:pt-32 px-4 sm:px-6 lg:px-8"> 
-          <div className="container mx-auto">
-            <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24 items-center">
-              
-              <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
-                <div className="space-y-3">
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
-                    Find Your Future
-                  </h1>
-                  <p className="text-2xl md:text-3xl text-foreground/90">
-                    Simple. Smart. <span className="text-accent">Seamless.</span>
-                  </p>
-                  <p className="max-w-[600px] text-foreground/70 md:text-xl mx-auto lg:mx-0">
-                    Discover your perfect university match from over 10,000+
-                    programs worldwide. Let us guide your educational journey.
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 min-[400px]:flex-row lg:justify-start justify-center">
-                  <Button size="lg" asChild className="bg-primary hover:bg-primary/90 text-primary-foreground py-7 px-8 text-lg shadow-lg hover:shadow-primary/50 transition-shadow">
-                    <Link href="/college-search">
-                      Explore Universities
-                    </Link>
-                  </Button>
-                  <Button size="lg" variant="outline" asChild className="border-foreground/30 hover:bg-foreground/10 text-foreground py-7 px-8 text-lg shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm bg-transparent/10">
-                    <Link href="#how-it-works"> 
-                      How It Works
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex justify-center lg:justify-end">
+      <main className="flex-1 flex flex-col pt-36">
+        {/* Hero Section */}
+        <section className="relative w-full flex items-center py-16 md:py-24 lg:py-32 bg-background">
+          <div className="absolute inset-0 opacity-10 dark:opacity-20">
+            <Image 
+              src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-stanford.jpg"
+              alt="University campus background"
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
+              data-ai-hint="college campus"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+          
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="max-w-3xl text-center mx-auto">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
+                  Find Your Future University
+                </h1>
+                <p className="mt-4 text-lg md:text-xl text-muted-foreground">
+                  Discover your perfect university match from over 10,000+
+                  programs worldwide. Let us guide your educational journey.
+                </p>
+            </div>
+             <div className="mt-8 max-w-4xl mx-auto">
                 <HeroSearchForm />
-              </div>
-
             </div>
           </div>
         </section>
         
-        <section id="how-it-works" className="w-full bg-transparent">
+        <section id="featured-universities" className="w-full py-16 lg:py-24 bg-background">
            <UniversityLogos />
         </section>
 
-        <section className="w-full bg-transparent">
+        <section className="w-full py-16 lg:py-24 bg-secondary/70">
           <GlobalRankings />
         </section>
 
-        <section className="w-full bg-transparent">
+        <section className="w-full py-16 lg:py-24 bg-background">
           <AlumniNetwork />
         </section>
 
-        <section className="w-full bg-transparent">
+        <section className="w-full py-16 lg:py-24 bg-secondary/70">
           <Newsletter />
         </section>
       </main>
-      <footer className="py-8 text-center text-muted-foreground text-sm z-10 bg-transparent/10 backdrop-blur-sm">
+      <footer className="py-8 text-center text-muted-foreground text-sm z-10 bg-background border-t">
         © {new Date().getFullYear()} EDUCOMPASS. All rights reserved.
       </footer>
     </div>

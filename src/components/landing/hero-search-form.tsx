@@ -1,8 +1,6 @@
-
-
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -13,7 +11,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import {
   Select,
@@ -22,94 +19,71 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { COUNTRIES, EDUCATION_LEVELS, MAJORS_SAMPLE } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import { Input } from "../ui/input";
 
 const heroSearchFormSchema = z.object({
+  keyword: z.string().optional(),
   studyLevel: z.string().optional(),
   destination: z.string().optional(),
   subject: z.string().optional(),
-  cgpa: z.number().min(7).max(10).optional().default(7.0),
-  includeScholarships: z.boolean().optional().default(false),
 });
 
 type HeroSearchFormValues = z.infer<typeof heroSearchFormSchema>;
 
 export function HeroSearchForm() {
   const router = useRouter();
-  const [cgpaValue, setCgpaValue] = useState(7.0);
 
   const form = useForm<HeroSearchFormValues>({
     resolver: zodResolver(heroSearchFormSchema),
     defaultValues: {
+      keyword: "",
       studyLevel: "",
       destination: "",
       subject: "",
-      cgpa: 7.0,
-      includeScholarships: false,
     },
   });
 
   function onSubmit(values: HeroSearchFormValues) {
-    console.log("Hero search form submitted:", values);
     const queryParams = new URLSearchParams();
+    if (values.keyword) queryParams.set("keyword", values.keyword);
     if (values.studyLevel) queryParams.set("studyLevel", values.studyLevel);
     if (values.destination) queryParams.set("country", values.destination);
     if (values.subject) queryParams.set("subject", values.subject);
-    if (values.cgpa) queryParams.set("minCGPA", values.cgpa.toString());
-    if (values.includeScholarships) queryParams.set("scholarships", "true");
     
     router.push(`/college-search?${queryParams.toString()}`);
   }
 
   return (
-    <Card className="w-full max-w-md bg-transparent/30 backdrop-blur-md shadow-2xl border-border/30">
-      <CardHeader>
-        <CardTitle className="text-2xl font-semibold text-center text-card-foreground">
-          Find Your Perfect University
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full bg-background/80 backdrop-blur-md shadow-2xl border">
+      <CardContent className="p-4">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
+          <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 items-end gap-4">
+             <FormField
               control={form.control}
-              name="studyLevel"
+              name="keyword"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-card-foreground/80">Study Level</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="bg-input/50 backdrop-blur-sm text-foreground border-border/50">
-                        <SelectValue placeholder="Select Study Level" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {EDUCATION_LEVELS.map((level) => (
-                        <SelectItem key={level.value} value={level.value}>
-                          {level.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
+                <FormItem className="lg:col-span-2">
+                  <FormLabel className="text-foreground/80 text-xs">University or Course</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Search..." {...field} />
+                  </FormControl>
                 </FormItem>
               )}
             />
-
+            
             <FormField
               control={form.control}
               name="destination"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-card-foreground/80">Destination</FormLabel>
+                   <FormLabel className="text-foreground/80 text-xs">Destination</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input/50 backdrop-blur-sm text-foreground border-border/50">
-                        <SelectValue placeholder="Select Destination" />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Country" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -120,7 +94,6 @@ export function HeroSearchForm() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -130,11 +103,11 @@ export function HeroSearchForm() {
               name="subject"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-card-foreground/80">Subject</FormLabel>
+                  <FormLabel className="text-foreground/80 text-xs">Subject</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="bg-input/50 backdrop-blur-sm text-foreground border-border/50">
-                        <SelectValue placeholder="Select Subject" />
+                      <SelectTrigger>
+                        <SelectValue placeholder="Subject" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
@@ -145,62 +118,12 @@ export function HeroSearchForm() {
                       ))}
                     </SelectContent>
                   </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="cgpa"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-card-foreground/80">
-                    CGPA (Minimum: {cgpaValue.toFixed(1)})
-                  </FormLabel>
-                  <FormControl>
-                    <Slider
-                      defaultValue={[field.value || 7.0]}
-                      min={7}
-                      max={10}
-                      step={0.1}
-                      onValueChange={(value) => {
-                        field.onChange(value[0]);
-                        setCgpaValue(value[0]);
-                      }}
-                      className="[&>span:first-child]:bg-primary/30 [&_[role=slider]]:bg-primary"
-                    />
-                  </FormControl>
-                   <div className="flex justify-between text-xs text-card-foreground/70 mt-1">
-                    <span>7.0</span>
-                    <span>10.0</span>
-                  </div>
-                  <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="includeScholarships"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-x-3 space-y-0">
-                  <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                      className="border-muted-foreground data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                    />
-                  </FormControl>
-                  <FormLabel className="font-normal text-card-foreground/80">
-                    Include scholarships
-                  </FormLabel>
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 text-base">
-              Discover
+            <Button type="submit" className="w-full sm:w-auto lg:w-full">
+              Search
             </Button>
           </form>
         </Form>
@@ -208,4 +131,3 @@ export function HeroSearchForm() {
     </Card>
   );
 }
-
