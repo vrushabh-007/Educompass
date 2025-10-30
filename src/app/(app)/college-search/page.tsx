@@ -7,7 +7,6 @@ import Image from 'next/image';
 import type { UniversityAPIResponse } from '@/lib/types'; 
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { AppLogo } from '@/components/shared/app-logo';
 
 const logoMap: Record<string, string> = {
   'Massachusetts Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
@@ -139,18 +138,6 @@ export default function ResultsPage() {
   
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Top Nav */}
-      <nav className="w-full bg-card shadow-sm flex items-center px-4 sm:px-8 py-4 justify-between">
-        <AppLogo />
-        <div className="flex gap-4 sm:gap-6 items-center text-sm">
-          <Link href="/college-search" className="font-semibold text-primary border-b-2 border-primary pb-1">Universities</Link>
-          <Link href="/my-profile">For Students</Link>
-          <Link href="/#how-it-works">About</Link> {/* Placeholder About link */}
-          {/* <Link href="#">Contact</Link> */} {/* Contact might be future scope */}
-          <Link href="/login" className="ml-2 sm:ml-4 px-3 sm:px-4 py-2 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 transition">Login</Link>
-        </div>
-      </nav>
-
       <div className="max-w-5xl mx-auto mt-8 px-4 sm:px-0">
         <form onSubmit={handleSearchFormSubmit} className="flex flex-col md:flex-row items-center gap-4 bg-card rounded-xl shadow p-4">
           <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 items-end">
