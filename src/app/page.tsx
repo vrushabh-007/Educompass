@@ -1,3 +1,4 @@
+
 "use client"; 
 
 import { Button } from "@/components/ui/button";
@@ -69,37 +70,37 @@ export default function LandingPage() {
         </div>
       </header>
       
-      <main className="flex-1 flex flex-col pt-36">
-        {/* Hero Section */}
-        <section className="relative w-full flex items-center py-16 md:py-24 lg:py-32 bg-background">
-          <div className="absolute inset-0 opacity-10 dark:opacity-20">
-            <Image 
-              src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-stanford.jpg"
-              alt="University campus background"
-              fill
-              style={{ objectFit: 'cover' }}
-              priority
-              data-ai-hint="college campus"
-            />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="max-w-3xl text-center mx-auto">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
-                  Find Your Future University
-                </h1>
-                <p className="mt-4 text-lg md:text-xl text-muted-foreground">
-                  Discover your perfect university match from over 10,000+
-                  programs worldwide. Let us guide your educational journey.
-                </p>
-            </div>
-             <div className="mt-8 max-w-4xl mx-auto">
-                <HeroSearchForm />
-            </div>
-          </div>
-        </section>
+      {/* Hero Section */}
+      <section className="relative w-full flex items-center pt-36 pb-16 md:pb-24 lg:pb-32 bg-background">
+        <div className="absolute inset-0">
+          <Image 
+            src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-stanford.jpg"
+            alt="University campus background"
+            fill
+            style={{ objectFit: 'cover' }}
+            priority
+            data-ai-hint="college campus"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background"></div>
+        </div>
         
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl text-center mx-auto">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
+                Find Your Future University
+              </h1>
+              <p className="mt-4 text-lg md:text-xl text-muted-foreground">
+                Discover your perfect university match from over 10,000+
+                programs worldwide. Let us guide your educational journey.
+              </p>
+          </div>
+           <div className="mt-8 max-w-4xl mx-auto">
+              <HeroSearchForm />
+          </div>
+        </div>
+      </section>
+
+      <main className="flex-1 flex flex-col">
         <section id="featured-universities" className="w-full py-16 lg:py-24 bg-background">
            <UniversityLogos />
         </section>
