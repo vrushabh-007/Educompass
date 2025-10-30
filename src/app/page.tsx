@@ -12,7 +12,6 @@ import UniversityLogos from "@/components/landing/university-logos";
 import GlobalRankings from "@/components/landing/GlobalRankings";
 import Newsletter from "@/components/landing/Newsletter";
 import { Input } from "@/components/ui/input";
-import InteractiveGlobeBackground from "@/components/landing/interactive-globe-background";
 import React, { useState } from "react"; 
 import { useRouter } from "next/navigation";
 import AlumniNetwork from "@/components/landing/AlumniNetwork";
@@ -32,7 +31,18 @@ export default function LandingPage() {
 
   return (
     <div className="flex flex-col min-h-screen text-foreground relative">
-      <InteractiveGlobeBackground />
+      <div className="absolute inset-0 -z-10 h-full w-full bg-background">
+        <Image 
+          src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/earth/bg.jpg" // Using image from 'earth' bucket
+          alt="Earth background"
+          fill
+          style={{ objectFit: 'cover' }}
+          className="opacity-20"
+          data-ai-hint="earth space"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+      </div>
+
       <header className="py-3 fixed top-3 left-0 right-0 z-50 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <div className="bg-transparent/30 backdrop-blur-md rounded-full shadow-xl p-2 sm:p-3 flex items-center justify-between border border-border/30">
