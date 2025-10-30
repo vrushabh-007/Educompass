@@ -31,12 +31,13 @@ import { AppLogo } from "@/components/shared/app-logo";
 import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; 
+import imageData from '@/lib/placeholder-images.json';
 
 // Mock user data, replace with actual auth state
 const MOCK_USER = {
   name: "Jane Doe",
   email: "jane.doe@example.com",
-  avatar: "https://picsum.photos/seed/user-avatar/40/40",
+  avatar: imageData['user-avatars']['jane-doe'],
   role: "student", // or "admin"
 };
 

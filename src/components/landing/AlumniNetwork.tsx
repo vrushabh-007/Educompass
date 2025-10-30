@@ -5,30 +5,31 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Linkedin, UserCheck } from 'lucide-react';
 import Link from 'next/link';
+import imageData from '@/lib/placeholder-images.json';
 
 const alumni = [
   {
     name: 'Sarah Chen',
     headline: 'Software Engineer @ Google',
-    avatarUrl: 'https://picsum.photos/seed/alumni1/100/100',
+    avatarUrl: imageData['alumni-avatars'].alumni1,
     institution: 'MIT',
   },
   {
     name: 'Michael B. Jordan',
     headline: 'Data Scientist @ Netflix',
-    avatarUrl: 'https://picsum.photos/seed/alumni2/100/100',
+    avatarUrl: imageData['alumni-avatars'].alumni2,
     institution: 'Stanford',
   },
   {
     name: 'Priya Patel',
     headline: 'Product Manager @ Microsoft',
-    avatarUrl: 'https://picsum.photos/seed/alumni3/100/100',
+    avatarUrl: imageData['alumni-avatars'].alumni3,
     institution: 'U of T',
   },
   {
     name: 'David Kim',
     headline: 'UX Designer @ Apple',
-    avatarUrl: 'https://picsum.photos/seed/alumni4/100/100',
+    avatarUrl: imageData['alumni-avatars'].alumni4,
     institution: 'Cambridge',
   },
 ];

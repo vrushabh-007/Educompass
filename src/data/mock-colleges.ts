@@ -1,4 +1,5 @@
 import type { College } from '@/lib/types';
+import imageData from '@/lib/placeholder-images.json';
 
 export const mockColleges: College[] = [
   {
@@ -7,7 +8,7 @@ export const mockColleges: College[] = [
     location: 'Cambridge, MA, USA',
     country: 'USA',
     description: 'A world-renowned private research university known for its programs in science, engineering, and technology.',
-    imageUrl: 'https://picsum.photos/seed/mit/600/400',
+    imageUrl: imageData['college-campus'].mit,
     acceptanceRate: 7,
     tuitionFees: { amount: 55000, currency: 'USD', period: 'annual' },
     financialAidAvailable: true,
@@ -17,9 +18,9 @@ export const mockColleges: College[] = [
     admissionDeadline: 'January 1',
     requiredExams: ['SAT', 'ACT', 'TOEFL', 'IELTS'],
     alumni: [
-      { name: 'Richard Feynman', headline: 'Theoretical Physicist', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/feynman/40/40', institution: 'MIT' },
-      { name: 'Buzz Aldrin', headline: 'Astronaut', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/aldrin/40/40', institution: 'MIT' },
-      { name: 'Kofi Annan', headline: 'Former UN Secretary-General', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/annan/40/40', institution: 'MIT' },
+      { name: 'Richard Feynman', headline: 'Theoretical Physicist', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].feynman, institution: 'MIT' },
+      { name: 'Buzz Aldrin', headline: 'Astronaut', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].aldrin, institution: 'MIT' },
+      { name: 'Kofi Annan', headline: 'Former UN Secretary-General', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].annan, institution: 'MIT' },
     ]
   },
   {
@@ -28,7 +29,7 @@ export const mockColleges: College[] = [
     location: 'Stanford, CA, USA',
     country: 'USA',
     description: 'A leading private research university in Silicon Valley, excelling in innovation and entrepreneurship.',
-    imageUrl: 'https://picsum.photos/seed/stanford/600/400',
+    imageUrl: imageData['college-campus'].stanford,
     acceptanceRate: 5,
     tuitionFees: { amount: 58000, currency: 'USD', period: 'annual' },
     financialAidAvailable: true,
@@ -38,9 +39,9 @@ export const mockColleges: College[] = [
     admissionDeadline: 'January 5',
     requiredExams: ['SAT', 'ACT', 'TOEFL', 'IELTS'],
     alumni: [
-        { name: 'Larry Page', headline: 'Co-founder of Google', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/page/40/40', institution: 'Stanford' },
-        { name: 'Sergey Brin', headline: 'Co-founder of Google', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/brin/40/40', institution: 'Stanford' },
-        { name: 'Reese Witherspoon', headline: 'Actress and Producer', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/witherspoon/40/40', institution: 'Stanford' },
+        { name: 'Larry Page', headline: 'Co-founder of Google', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].page, institution: 'Stanford' },
+        { name: 'Sergey Brin', headline: 'Co-founder of Google', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].brin, institution: 'Stanford' },
+        { name: 'Reese Witherspoon', headline: 'Actress and Producer', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].witherspoon, institution: 'Stanford' },
     ]
   },
   {
@@ -49,7 +50,7 @@ export const mockColleges: College[] = [
     location: 'Mumbai, India',
     country: 'India',
     description: 'One of India\'s premier engineering and technology institutes, known for its rigorous academics and research.',
-    imageUrl: 'https://picsum.photos/seed/iitb/600/400',
+    imageUrl: imageData['college-campus'].iitb,
     acceptanceRate: 10, 
     tuitionFees: { amount: 220000, currency: 'INR', period: 'annual' },
     financialAidAvailable: true,
@@ -59,8 +60,8 @@ export const mockColleges: College[] = [
     admissionDeadline: 'Varies (JEE)',
     requiredExams: ['JEE Advanced'],
     alumni: [
-        { name: 'Nandan Nilekani', headline: 'Co-founder of Infosys', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/nilekani/40/40', institution: 'IIT Bombay' },
-        { name: 'Parag Agrawal', headline: 'Former CEO of Twitter', linkedinUrl: '#', avatarUrl: 'https://picsum.photos/seed/agrawal/40/40', institution: 'IIT Bombay' },
+        { name: 'Nandan Nilekani', headline: 'Co-founder of Infosys', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].nilekani, institution: 'IIT Bombay' },
+        { name: 'Parag Agrawal', headline: 'Former CEO of Twitter', linkedinUrl: '#', avatarUrl: imageData['alumni-avatars'].agrawal, institution: 'IIT Bombay' },
     ]
   },
   {
@@ -69,7 +70,7 @@ export const mockColleges: College[] = [
     location: 'Toronto, ON, Canada',
     country: 'Canada',
     description: 'Canada\'s largest university, recognized for its comprehensive programs and research impact.',
-    imageUrl: 'https://picsum.photos/seed/utoronto/600/400',
+    imageUrl: imageData['college-campus'].utoronto,
     acceptanceRate: 43,
     tuitionFees: { amount: 45000, currency: 'CAD', period: 'annual' }, 
     financialAidAvailable: true,
@@ -85,7 +86,7 @@ export const mockColleges: College[] = [
     location: 'Singapore',
     country: 'Singapore', 
     description: 'Asia\'s leading comprehensive research university, offering a global approach to education and research.',
-    imageUrl: 'https://picsum.photos/seed/nus/600/400',
+    imageUrl: imageData['college-campus'].nus,
     acceptanceRate: 25, 
     tuitionFees: { amount: 17550, currency: 'SGD', period: 'annual' }, 
     financialAidAvailable: true,

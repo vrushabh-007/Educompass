@@ -1,0 +1,26 @@
+{
+  "college-campus": {
+    "mit": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-mit.jpg",
+    "stanford": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-stanford.jpg",
+    "iitb": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-iitb.jpg",
+    "utoronto": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-utoronto.jpg",
+    "nus": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/college-nus.jpg"
+  },
+  "alumni-avatars": {
+    "feynman": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-feynman.jpg",
+    "aldrin": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-aldrin.jpg",
+    "annan": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-annan.jpg",
+    "page": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-page.jpg",
+    "brin": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-brin.jpg",
+    "witherspoon": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-witherspoon.jpg",
+    "nilekani": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-nilekani.jpg",
+    "agrawal": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-agrawal.jpg",
+    "alumni1": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-1.jpg",
+    "alumni2": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-2.jpg",
+    "alumni3": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-3.jpg",
+    "alumni4": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/alumni-4.jpg"
+  },
+  "user-avatars": {
+    "jane-doe": "https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/images/user-avatar.jpg"
+  }
+}
