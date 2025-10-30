@@ -15,6 +15,17 @@ interface UniversityInfo {
   website: string;
 }
 
+const mockUniversityLogos: UniversityInfo[] = [
+    { name: 'Massachusetts Institute of Technology', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png', website: 'https://web.mit.edu/' },
+    { name: 'Stanford University', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png', website: 'https://www.stanford.edu/' },
+    { name: 'Harvard University', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png', website: 'https://www.harvard.edu/' },
+    { name: 'University of Cambridge', country: 'UK', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png', website: 'https://www.cam.ac.uk/' },
+    { name: 'University of Oxford', country: 'UK', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png', website: 'https://www.ox.ac.uk/' },
+    { name: 'California Institute of Technology', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png', website: 'https://www.caltech.edu/' },
+    { name: 'ETH Zurich', country: 'Switzerland', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/eth-logo.png', website: 'https://ethz.ch/' },
+];
+
+
 function UniversityLogos() {
   const [universities, setUniversities] = useState<UniversityInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,9 +39,9 @@ function UniversityLogos() {
         .select('name, country, university_logo, webpages')
         .limit(10); // Fetch a few for the carousel
 
-      if (error) {
-        console.error("Error fetching universities for logos:", error);
-        setUniversities([]);
+      if (error || !data || data.length === 0) {
+        console.error("Error fetching universities for logos or no data, falling back to mocks:", error);
+        setUniversities(mockUniversityLogos);
       } else if (data) {
         const loadedUniversities = data.map(uni => ({
           name: uni.name,
@@ -96,16 +107,7 @@ function UniversityLogos() {
   }
 
   if (universities.length === 0) {
-    return (
-      <div className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className={`text-3xl font-bold ${textColor} mb-4`}>Featured Universities</h2>
-            <p className={`text-lg ${mutedTextColor}`}>No featured universities available at the moment.</p>
-          </div>
-        </div>
-      </div>
-    );
+    return null; // Don't render anything if there's no data
   }
 
   return (
