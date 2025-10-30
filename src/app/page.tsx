@@ -105,7 +105,7 @@ export default function LandingPage() {
            <UniversityLogos />
         </section>
 
-        <section className="w-full py-16 lg:py-24 bg-secondary/70">
+        <section className="w-full py-16 lg:py-24 bg-secondary/70 rounded-xl">
           <GlobalRankings />
         </section>
 
