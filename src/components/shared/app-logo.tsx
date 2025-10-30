@@ -6,10 +6,19 @@ export function AppLogo() {
     <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
       <Image
         src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/universitylogos/educompass-logo.png"
-        alt="EDUCOMPASS Logo"
+        alt="EDUCOMPASS Logo Dark"
         width={140}
         height={32}
-        className="h-8 w-auto"
+        className="h-8 w-auto dark:hidden"
+        data-ai-hint="app logo"
+        priority
+      />
+      <Image
+        src="https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/public/universitylogos/educompass.png"
+        alt="EDUCOMPASS Logo Light"
+        width={140}
+        height={32}
+        className="h-8 w-auto hidden dark:block"
         data-ai-hint="app logo"
         priority
       />

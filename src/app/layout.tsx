@@ -3,6 +3,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { GenkitClientProvider } from '@/components/genkit-client-provider';
+import { ThemeProvider } from '@/components/shared/theme-provider';
 
 
 export const metadata: Metadata = {
@@ -19,10 +20,17 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       {/* Apply 'font-sans' which will pick up the GeistSans definition from globals.css */}
       <body className={`antialiased font-sans`}> 
-        <GenkitClientProvider>
-          {children}
-          <Toaster />
-        </GenkitClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <GenkitClientProvider>
+            {children}
+            <Toaster />
+          </GenkitClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

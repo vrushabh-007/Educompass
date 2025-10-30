@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -34,6 +35,7 @@ import React, { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; 
 import imageData from '@/lib/placeholder-images.json';
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 // Mock user data, replace with actual auth state
 const MOCK_USER = {
@@ -109,7 +111,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </nav>
           </div>
           <div className="mt-auto p-4">
-            {/* Optional: Add settings or other footer items here */}
+            <ThemeToggle />
           </div>
         </div>
       </aside>
@@ -141,6 +143,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   </Link>
                 ))}
               </nav>
+               <div className="mt-auto p-4">
+                <ThemeToggle />
+              </div>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
