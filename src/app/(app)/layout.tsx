@@ -16,7 +16,8 @@ import {
   BarChart3,
   FileText,
   Menu,
-  FileSignature
+  FileSignature,
+  UserCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +56,7 @@ const navItems: NavItem[] = [
   { href: "/my-profile", label: "My Profile", icon: UserCircle, roles: ['student'] },
   { href: "/recommendations", label: "AI Recommendations", icon: Brain, roles: ['student'] },
   { href: "/sop-assistant", label: "SOP Assistant", icon: FileSignature, roles: ['student'] },
+  { href: "/alumni-network", label: "Alumni Network", icon: UserCheck, roles: ['student'] },
   { href: "/admin/manage-colleges", label: "Manage Colleges", icon: University, roles: ['admin'] },
   { href: "/admin/manage-users", label: "Manage Users", icon: Users, roles: ['admin'] },
   { href: "/admin/analytics", label: "Platform Analytics", icon: BarChart3, roles: ['admin'] },
