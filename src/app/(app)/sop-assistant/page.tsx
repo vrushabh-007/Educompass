@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -106,15 +107,15 @@ export default function SopAssistantPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-10">
-        {/* Left Column: Input and Generation */}
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle>1. Generate Your SOP Draft</CardTitle>
-            <CardDescription>Provide the details below and let our AI create a first draft for you. You can also skip this and paste your own essay in the next step.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
+      <Form {...form}>
+        <div className="grid lg:grid-cols-2 gap-10">
+          {/* Left Column: Input and Generation */}
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle>1. Generate Your SOP Draft</CardTitle>
+              <CardDescription>Provide the details below and let our AI create a first draft for you. You can also skip this and paste your own essay in the next step.</CardDescription>
+            </CardHeader>
+            <CardContent>
               <form onSubmit={form.handleSubmit(onGenerateSubmit)} className="space-y-6">
                 <FormField control={form.control} name="targetUniversity" render={({ field }) => (
                   <FormItem>
@@ -169,94 +170,96 @@ export default function SopAssistantPage() {
                     </Alert>
                 )}
               </form>
-            </Form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        {/* Right Column: Feedback */}
-        <div className="space-y-6">
-          <Card className="shadow-xl">
-            <CardHeader>
-              <CardTitle>2. Get AI Feedback</CardTitle>
-              <CardDescription>Paste your generated draft or your own essay here to get instant feedback on its structure, clarity, and content.</CardDescription>
-            </CardHeader>
-            <CardContent>
-               <FormField control={form.control} name="essayText" render={({ field }) => (
-                  <FormItem>
-                    <FormControl>
-                        <Textarea
-                            {...field}
-                            className="w-full h-80 bg-muted/50 text-sm"
-                            placeholder="Your generated SOP will appear here, or you can paste your own essay."
-                        />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                 {feedbackError && (
-                    <Alert variant="destructive" className="mt-4">
-                        <AlertTitle>Feedback Error</AlertTitle>
-                        <AlertDescription>{feedbackError}</AlertDescription>
-                    </Alert>
-                )}
-                 <Button onClick={onFeedbackSubmit} size="lg" disabled={isFeedbackLoading} className="w-full mt-4">
-                    <Wand2 className="mr-2 h-5 w-5" />
-                    {isFeedbackLoading ? "Analyzing..." : "Get Feedback"}
-                </Button>
-            </CardContent>
-          </Card>
-          
-          <Card className="shadow-xl">
-            <CardHeader>
-              <CardTitle>3. AI Feedback Analysis</CardTitle>
-              <CardDescription>Review the AI's analysis of your essay.</CardDescription>
-            </CardHeader>
-            <CardContent>
-               {isFeedbackLoading && (
-                <div className="space-y-4">
-                    <Skeleton className="h-6 w-1/3" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-5/6" />
-                    <Skeleton className="h-6 w-1/4 mt-4" />
-                    <Skeleton className="h-4 w-full" />
-                </div>
-                )}
-                
-                {!isFeedbackLoading && !feedback && (
-                    <div className="text-center py-10 text-muted-foreground">
-                        <p>Your feedback will appear here after analysis.</p>
-                    </div>
-                )}
-                
-                {feedback && (
-                    <div className="space-y-6">
-                        {/* Summary Section */}
-                        <div>
-                            <h4 className="font-semibold text-lg flex items-center mb-2"><BookOpen className="mr-2 h-5 w-5 text-primary" />Summary</h4>
-                            <p className="text-sm text-muted-foreground">{feedback.summary}</p>
-                        </div>
-                        <Separator />
-                        {/* Key Topics Section */}
-                        <div>
-                            <h4 className="font-semibold text-lg flex items-center mb-2"><List className="mr-2 h-5 w-5 text-primary" />Key Topics</h4>
-                             <div className="flex flex-wrap gap-2">
-                                {feedback.keyWords.map((word, index) => (
-                                    <Badge key={index} variant="secondary">{word}</Badge>
-                                ))}
-                            </div>
-                        </div>
-                        <Separator />
-                        {/* Feedback Section */}
-                        <div>
-                            <h4 className="font-semibold text-lg flex items-center mb-2"><MessageSquare className="mr-2 h-5 w-5 text-primary" />Feedback & Suggestions</h4>
-                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{feedback.feedback}</p>
-                        </div>
-                    </div>
-                )}
-            </CardContent>
-          </Card>
+          {/* Right Column: Feedback */}
+          <div className="space-y-6">
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle>2. Get AI Feedback</CardTitle>
+                <CardDescription>Paste your generated draft or your own essay here to get instant feedback on its structure, clarity, and content.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                 <FormField control={form.control} name="essayText" render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                          <Textarea
+                              {...field}
+                              className="w-full h-80 bg-muted/50 text-sm"
+                              placeholder="Your generated SOP will appear here, or you can paste your own essay."
+                          />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                   {feedbackError && (
+                      <Alert variant="destructive" className="mt-4">
+                          <AlertTitle>Feedback Error</AlertTitle>
+                          <AlertDescription>{feedbackError}</AlertDescription>
+                      </Alert>
+                  )}
+                   <Button onClick={onFeedbackSubmit} size="lg" disabled={isFeedbackLoading} className="w-full mt-4">
+                      <Wand2 className="mr-2 h-5 w-5" />
+                      {isFeedbackLoading ? "Analyzing..." : "Get Feedback"}
+                  </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="shadow-xl">
+              <CardHeader>
+                <CardTitle>3. AI Feedback Analysis</CardTitle>
+                <CardDescription>Review the AI's analysis of your essay.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                 {isFeedbackLoading && (
+                  <div className="space-y-4">
+                      <Skeleton className="h-6 w-1/3" />
+                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-5/6" />
+                      <Skeleton className="h-6 w-1/4 mt-4" />
+                      <Skeleton className="h-4 w-full" />
+                  </div>
+                  )}
+                  
+                  {!isFeedbackLoading && !feedback && (
+                      <div className="text-center py-10 text-muted-foreground">
+                          <p>Your feedback will appear here after analysis.</p>
+                      </div>
+                  )}
+                  
+                  {feedback && (
+                      <div className="space-y-6">
+                          {/* Summary Section */}
+                          <div>
+                              <h4 className="font-semibold text-lg flex items-center mb-2"><BookOpen className="mr-2 h-5 w-5 text-primary" />Summary</h4>
+                              <p className="text-sm text-muted-foreground">{feedback.summary}</p>
+                          </div>
+                          <Separator />
+                          {/* Key Topics Section */}
+                          <div>
+                              <h4 className="font-semibold text-lg flex items-center mb-2"><List className="mr-2 h-5 w-5 text-primary" />Key Topics</h4>
+                               <div className="flex flex-wrap gap-2">
+                                  {feedback.keyWords.map((word, index) => (
+                                      <Badge key={index} variant="secondary">{word}</Badge>
+                                  ))}
+                              </div>
+                          </div>
+                          <Separator />
+                          {/* Feedback Section */}
+                          <div>
+                              <h4 className="font-semibold text-lg flex items-center mb-2"><MessageSquare className="mr-2 h-5 w-5 text-primary" />Feedback & Suggestions</h4>
+                              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{feedback.feedback}</p>
+                          </div>
+                      </div>
+                  )}
+              </CardContent>
+            </Card>
+          </div>
         </div>
-      </div>
+      </Form>
     </div>
   );
 }
+
+    
