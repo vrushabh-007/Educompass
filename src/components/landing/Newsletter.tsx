@@ -37,19 +37,15 @@ function Newsletter() {
       setStatus('loading');
       setMessage('');
 
-      // Insert into Supabase 'newsletter_subscriptions' table
-      const { error } = await supabase.from('newsletter_subscriptions').insert({ email });
+      // Use 'Newsletter' table as per schema
+      const { error } = await supabase.from('Newsletter').insert({ email });
       
       if (error) {
         // Handle potential duplicate email error (23505 is PostgreSQL's unique_violation code)
         if (error.code === '23505') {
             throw new Error('This email is already subscribed.');
         }
-        // For other errors, simulate success to keep UI functional
-        console.error("Supabase newsletter error:", error);
-        setStatus('success');
-        setMessage('Thank you for subscribing to our newsletter! (Simulated)');
-        return;
+        throw error;
       }
 
       setStatus('success');
@@ -57,10 +53,9 @@ function Newsletter() {
       setEmail('');
       setIsChecked(false);
     } catch (error: any) {
-      // Catch all errors, including connection issues, and simulate success
       console.error("Newsletter submission error:", error.message);
-      setStatus('success');
-      setMessage('Thank you for subscribing to our newsletter! (Simulated)');
+      setStatus('error');
+      setMessage(error.message || 'An error occurred. Please try again.');
     }
   };
 

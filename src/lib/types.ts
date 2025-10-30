@@ -106,7 +106,7 @@ export interface AIRecommendedCollege {
   isGoodFit: boolean;
 }
 
-// Matches the Supabase schema image and the API transformation
+// Matches the Supabase schema and the API transformation
 export interface UniversityAPIResponse {
   id: string;
   name: string;
@@ -120,7 +120,7 @@ export interface UniversityAPIResponse {
   webpages?: string[] | null; // from 'webpages' (is _text, so array of strings)
   imageUrl?: string | null; // from 'university-logo'
   
-  // These fields are NOT in the provided schema image for the University table
+  // These fields are NOT in the provided schema for the University table
   // They are kept here as optional if other parts of the UI expect them, but data won't come from the current API query
   description?: string | null; 
   acceptanceRate?: number | null;

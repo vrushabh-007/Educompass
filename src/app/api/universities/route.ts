@@ -1,7 +1,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import type { College, UniversityAPIResponse } from '@/lib/types';
+import type { UniversityAPIResponse } from '@/lib/types';
 import { mockColleges } from '@/data/mock-colleges';
 
 export async function GET(request: NextRequest) {
@@ -17,12 +17,22 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'worldranking';
     const scholarshipsParam = searchParams.get('scholarships');
     
-    let query = supabase.from('University').select('*');
+    // The column name is `university-logo` in the schema. In Supabase, this is often accessed as `university_logo`.
+    let query = supabase.from('University').select(`
+      id,
+      name,
+      country,
+      stateprovince,
+      studylevels,
+      subjects,
+      mincgpa,
+      scholarships,
+      worldranking,
+      webpages,
+      "university-logo"
+    `);
 
     if (keyword) {
-      // Assuming 'name' and 'subjects' are columns you want to search.
-      // Supabase's `textSearch` is often better for this but needs setup.
-      // Using `or` for broad matching.
       query = query.or(`name.ilike.%${keyword}%,subjects.cs.{"${keyword}"}`);
     }
     
@@ -39,7 +49,7 @@ export async function GET(request: NextRequest) {
     }
 
     const minCGPA = minCGPAStr ? parseFloat(minCGPAStr) : undefined;
-    if (minCGPA) {
+    if (minCGPA != null && !isNaN(minCGPA)) {
         query = query.gte('mincgpa', minCGPA);
     }
 
@@ -49,7 +59,7 @@ export async function GET(request: NextRequest) {
 
     if (sortBy) {
         const ascending = sortBy !== 'worldranking'; // worldranking is better descending
-        query = query.order(sortBy, { ascending });
+        query = query.order(sortBy, { ascending, nullsFirst: false });
     }
 
     const { data, error } = await query;
@@ -71,22 +81,19 @@ export async function GET(request: NextRequest) {
       scholarships: uni.scholarships,
       worldranking: uni.worldranking,
       webpages: uni.webpages,
-      imageUrl: uni.university_logo,
-      ranking_description: uni.ranking_description,
+      imageUrl: uni['university-logo'], // Access with brackets due to hyphen
     }));
     
     return NextResponse.json({ data: transformedData });
 
   } catch (e: any) {
     console.error('Unexpected error in /api/universities route:', e);
-    const detailMessage = typeof e.message === 'string' ? e.message : String(e);
-    // Fallback to mock data on any unexpected error
-    return NextResponse.json({ data: mockColleges.map(transformCollegeToAPIResponse) }, { status: 200 });
+    return NextResponse.json({ error: "An unexpected server error occurred.", details: e.message }, { status: 500 });
   }
 }
 
 // Helper to transform mock data to the API response shape
-function transformCollegeToAPIResponse(college: College): UniversityAPIResponse {
+function transformCollegeToAPIResponse(college: any): UniversityAPIResponse {
     return {
       id: college.id,
       name: college.name,
@@ -99,6 +106,5 @@ function transformCollegeToAPIResponse(college: College): UniversityAPIResponse 
       worldranking: college.ranking ? parseInt(college.ranking.replace(/[^0-9]/g, ''), 10) || undefined : undefined,
       webpages: college.website ? [college.website] : [],
       imageUrl: college.imageUrl,
-      ranking_description: college.ranking,
     };
 }

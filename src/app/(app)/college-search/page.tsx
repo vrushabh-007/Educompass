@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 const logoMap: Record<string, string> = {
   'Massachusetts Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png',
   'Stanford University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png',
-  'Harvard University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png', // Corrected from harverd to harvard if it was a typo
+  'Harvard University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png',
   'University of Cambridge': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png',
   'University of Oxford': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png',
   'California Institute of Technology': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png',
@@ -21,10 +21,9 @@ const logoMap: Record<string, string> = {
   'University of Chicago': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/chicago-logo.png',
   'University of California, Berkeley': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/berkeley-logo.png',
   'National University of Singapore': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/nus-logo.png',
-  'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png', // Corrected from priceton to princeton if typo
+  'Princeton University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/priceton-logo.png',
   'University of Tokyo': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/tokyo-logo.png',
   'Yale University': 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/yale-logo.png',
-  // Add more mappings if actual logos are stored in 'university-logo' column
 };
 
 // Trim whitespace from all URLs in logoMap
@@ -252,7 +251,6 @@ export default function ResultsPage() {
         ) : (
           paginatedUniversities.map((uni, idx) => {
             const isFirstCard = idx === 0 && page === 1; 
-            // Prioritize uni.imageUrl (from DB), then logoMap, then picsum
             const logoSrc = (uni.imageUrl || logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`).trimEnd();
             return (
             <div
@@ -293,9 +291,7 @@ export default function ResultsPage() {
               {uni.worldranking != null && (
                 <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>World Ranking: <span className="font-semibold">#{uni.worldranking}</span></div>
               )}
-               {uni.ranking_description && ( // This field might not be available anymore based on schema
-                 <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Ranking: <span className="font-semibold">{uni.ranking_description}</span></div>
-              )}
+              
               {uni.webpages && uni.webpages.length > 0 && (
                 <Link
                   href={uni.webpages[0].startsWith('http') ? uni.webpages[0] : `https://${uni.webpages[0]}`}
@@ -327,4 +323,3 @@ export default function ResultsPage() {
     </div>
   );
 }
-
