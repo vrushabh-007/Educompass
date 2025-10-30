@@ -75,16 +75,8 @@ export default function LandingPage() {
               
               <div className="flex flex-col justify-center space-y-6 text-center lg:text-left">
                 <div className="space-y-3">
-                  <h1 className="text-foreground"> {/* Removed text sizing classes */}
-                    <Image
-                      src="https://picsum.photos/seed/educompass-title/452/56"
-                      alt="EDUCOMPASS"
-                      width={452} 
-                      height={56} 
-                      className="block mx-auto lg:mx-0" // Use block for layout and centering/alignment
-                      priority
-                      data-ai-hint="text logo"
-                    />
+                  <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-foreground">
+                    Find Your Future
                   </h1>
                   <p className="text-2xl md:text-3xl text-foreground/90">
                     Simple. Smart. <span className="text-accent">Seamless.</span>
