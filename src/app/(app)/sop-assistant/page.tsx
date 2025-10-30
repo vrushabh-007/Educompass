@@ -17,10 +17,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { generateSop } from '@/ai/flows/generate-sop';
-import type { GenerateSopInput } from '@/ai/flows/generate-sop';
+import { provideEssayFeedback } from '@/ai/flows/provide-essay-feedback';
+import type { GenerateSopInput, EssayFeedback } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileSignature, Sparkles } from 'lucide-react';
+import { FileSignature, Sparkles, Wand2, BookOpen, List, MessageSquare, Badge } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 
 const sopFormSchema = z.object({
   targetUniversity: z.string().min(3, "Target university is required."),
@@ -29,14 +31,18 @@ const sopFormSchema = z.object({
   keyProjects: z.string().min(10, "Please describe key projects or experiences."),
   careerGoals: z.string().min(10, "Career goals are required."),
   additionalInfo: z.string().optional(),
+  essayText: z.string().optional(), // For the feedback text area
 });
 
 type SopFormValues = z.infer<typeof sopFormSchema>;
 
 export default function SopAssistantPage() {
   const [generatedSop, setGeneratedSop] = useState<string>("");
+  const [feedback, setFeedback] = useState<EssayFeedback | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isFeedbackLoading, setIsFeedbackLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
 
   const form = useForm<SopFormValues>({
     resolver: zodResolver(sopFormSchema),
@@ -47,17 +53,20 @@ export default function SopAssistantPage() {
       keyProjects: "",
       careerGoals: "",
       additionalInfo: "",
+      essayText: ""
     },
   });
 
-  async function onSubmit(data: SopFormValues) {
+  async function onGenerateSubmit(data: SopFormValues) {
     setIsLoading(true);
     setError(null);
     setGeneratedSop("");
+    setFeedback(null);
 
     try {
       const result = await generateSop(data as GenerateSopInput);
       setGeneratedSop(result);
+      form.setValue("essayText", result); // Populate the feedback text area
     } catch (err) {
       console.error("Error generating SOP:", err);
       setError("Failed to generate SOP. Please try again.");
@@ -65,25 +74,48 @@ export default function SopAssistantPage() {
     setIsLoading(false);
   }
 
+  async function onFeedbackSubmit() {
+    const essayText = form.getValues("essayText");
+    if (!essayText || essayText.trim().length < 50) {
+      setFeedbackError("Please enter an essay of at least 50 characters to get feedback.");
+      return;
+    }
+    
+    setIsFeedbackLoading(true);
+    setFeedbackError(null);
+    setFeedback(null);
+    
+    try {
+      const result = await provideEssayFeedback(essayText);
+      setFeedback(result);
+    } catch (err) {
+      console.error("Error getting feedback:", err);
+      setFeedbackError("Failed to get feedback for the essay. Please try again.");
+    }
+    setIsFeedbackLoading(false);
+  }
+
+
   return (
     <div className="container mx-auto py-8">
       <div className="text-center mb-10">
         <FileSignature className="mx-auto h-16 w-16 text-primary mb-3" />
         <h1 className="text-4xl font-bold tracking-tight">SOP & Essay Assistant</h1>
-        <p className="text-lg text-muted-foreground mt-2">
-          Craft a compelling Statement of Purpose with the help of AI.
+        <p className="text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">
+          Craft a compelling Statement of Purpose with AI generation and get instant, constructive feedback on your drafts.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-10">
+      <div className="grid lg:grid-cols-2 gap-10">
+        {/* Left Column: Input and Generation */}
         <Card className="shadow-xl">
           <CardHeader>
-            <CardTitle>Your Information</CardTitle>
-            <CardDescription>Provide the details below to generate your SOP draft.</CardDescription>
+            <CardTitle>1. Generate Your SOP Draft</CardTitle>
+            <CardDescription>Provide the details below and let our AI create a first draft for you. You can also skip this and paste your own essay in the next step.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={form.handleSubmit(onGenerateSubmit)} className="space-y-6">
                 <FormField control={form.control} name="targetUniversity" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Target University</FormLabel>
@@ -128,49 +160,102 @@ export default function SopAssistantPage() {
                 )} />
                 <Button type="submit" size="lg" disabled={isLoading} className="w-full">
                   <Sparkles className="mr-2 h-5 w-5" />
-                  {isLoading ? "Generating..." : "Generate SOP Draft"}
+                  {isLoading ? "Generating Draft..." : "Generate SOP Draft"}
                 </Button>
+                 {error && (
+                    <Alert variant="destructive" className="mt-4">
+                        <AlertTitle>Generation Error</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
               </form>
             </Form>
           </CardContent>
         </Card>
 
-        <Card className="shadow-xl">
-          <CardHeader>
-            <CardTitle>AI-Generated Draft</CardTitle>
-            <CardDescription>Your Statement of Purpose will appear here. Review and edit as needed.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading && (
-              <div className="space-y-3">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-[80%]" />
-                <Skeleton className="h-4 w-full mt-4" />
-                <Skeleton className="h-4 w-[90%]" />
-              </div>
-            )}
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-            {!isLoading && generatedSop && (
-               <Textarea
-                readOnly
-                value={generatedSop}
-                className="w-full h-[500px] bg-muted/50 text-sm"
-                placeholder="Your generated SOP..."
-              />
-            )}
-             {!isLoading && !generatedSop && !error && (
-                 <div className="text-center py-20 text-muted-foreground">
-                    <p>Your generated Statement of Purpose will appear here.</p>
+        {/* Right Column: Feedback */}
+        <div className="space-y-6">
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle>2. Get AI Feedback</CardTitle>
+              <CardDescription>Paste your generated draft or your own essay here to get instant feedback on its structure, clarity, and content.</CardDescription>
+            </CardHeader>
+            <CardContent>
+               <FormField control={form.control} name="essayText" render={({ field }) => (
+                  <FormItem>
+                    <FormControl>
+                        <Textarea
+                            {...field}
+                            className="w-full h-80 bg-muted/50 text-sm"
+                            placeholder="Your generated SOP will appear here, or you can paste your own essay."
+                        />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+                 {feedbackError && (
+                    <Alert variant="destructive" className="mt-4">
+                        <AlertTitle>Feedback Error</AlertTitle>
+                        <AlertDescription>{feedbackError}</AlertDescription>
+                    </Alert>
+                )}
+                 <Button onClick={onFeedbackSubmit} size="lg" disabled={isFeedbackLoading} className="w-full mt-4">
+                    <Wand2 className="mr-2 h-5 w-5" />
+                    {isFeedbackLoading ? "Analyzing..." : "Get Feedback"}
+                </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className="shadow-xl">
+            <CardHeader>
+              <CardTitle>3. AI Feedback Analysis</CardTitle>
+              <CardDescription>Review the AI's analysis of your essay.</CardDescription>
+            </CardHeader>
+            <CardContent>
+               {isFeedbackLoading && (
+                <div className="space-y-4">
+                    <Skeleton className="h-6 w-1/3" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-6 w-1/4 mt-4" />
+                    <Skeleton className="h-4 w-full" />
                 </div>
-            )}
-          </CardContent>
-        </Card>
+                )}
+                
+                {!isFeedbackLoading && !feedback && (
+                    <div className="text-center py-10 text-muted-foreground">
+                        <p>Your feedback will appear here after analysis.</p>
+                    </div>
+                )}
+                
+                {feedback && (
+                    <div className="space-y-6">
+                        {/* Summary Section */}
+                        <div>
+                            <h4 className="font-semibold text-lg flex items-center mb-2"><BookOpen className="mr-2 h-5 w-5 text-primary" />Summary</h4>
+                            <p className="text-sm text-muted-foreground">{feedback.summary}</p>
+                        </div>
+                        <Separator />
+                        {/* Key Topics Section */}
+                        <div>
+                            <h4 className="font-semibold text-lg flex items-center mb-2"><List className="mr-2 h-5 w-5 text-primary" />Key Topics</h4>
+                             <div className="flex flex-wrap gap-2">
+                                {feedback.keyWords.map((word, index) => (
+                                    <Badge key={index} variant="secondary">{word}</Badge>
+                                ))}
+                            </div>
+                        </div>
+                        <Separator />
+                        {/* Feedback Section */}
+                        <div>
+                            <h4 className="font-semibold text-lg flex items-center mb-2"><MessageSquare className="mr-2 h-5 w-5 text-primary" />Feedback & Suggestions</h4>
+                            <p className="text-sm text-muted-foreground whitespace-pre-wrap">{feedback.feedback}</p>
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );

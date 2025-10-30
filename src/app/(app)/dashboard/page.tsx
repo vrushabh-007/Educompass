@@ -175,7 +175,7 @@ export default function DashboardPage() {
                     <Image
                       src={college.imageUrl}
                       alt={college.name}
-                      layout="fill"
+                      fill
                       objectFit="cover"
                       data-ai-hint="college campus university"
                     />

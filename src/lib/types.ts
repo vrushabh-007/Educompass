@@ -1,5 +1,6 @@
 
 
+
 export interface Alumni {
   name: string;
   headline: string;
@@ -135,4 +136,21 @@ export interface UniversityAPIResponse {
   popularPrograms?: string[] | null; // This is essentially 'subjects'
   campusLife?: string | null;
   requiredExams?: string[] | null;
+}
+
+
+// Types for the SOP/Essay Assistant
+export interface GenerateSopInput {
+  targetUniversity: string;
+  targetProgram: string;
+  academicBackground: string;
+  keyProjects: string;
+  careerGoals: string;
+  additionalInfo?: string;
+}
+
+export interface EssayFeedback {
+  summary: string;
+  keyWords: string[];
+  feedback: string;
 }
