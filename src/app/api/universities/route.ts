@@ -1,64 +1,13 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { mockColleges } from '@/data/mock-colleges';
+import { createClient } from '@/lib/supabase/server';
 import type { College, UniversityAPIResponse } from '@/lib/types';
-
-// This function simulates filtering on the mock data, similar to what a database would do.
-function filterColleges(
-  colleges: College[],
-  filters: {
-    keyword?: string;
-    country?: string;
-    studyLevel?: string;
-    subject?: string;
-    minCGPA?: number;
-    scholarships?: boolean;
-    sortBy?: string;
-  }
-): College[] {
-  let filtered = colleges;
-
-  if (filters.keyword) {
-    const keyword = filters.keyword.toLowerCase();
-    filtered = filtered.filter(
-      (c) =>
-        c.name.toLowerCase().includes(keyword) ||
-        c.location.toLowerCase().includes(keyword) ||
-        c.popularPrograms?.some(p => p.toLowerCase().includes(keyword))
-    );
-  }
-
-  if (filters.country && filters.country !== 'Other' && filters.country !== 'All Countries') {
-    filtered = filtered.filter((c) => c.country === filters.country);
-  }
-
-  // Note: Mock data doesn't have study levels, so this filter won't have an effect.
-  // if (filters.studyLevel) { ... }
-
-  if (filters.subject) {
-    filtered = filtered.filter((c) => c.popularPrograms?.includes(filters.subject!));
-  }
-  
-  // Note: Mock data doesn't have min CGPA, so this filter won't have an effect.
-  // if (filters.minCGPA) { ... }
-
-  if (filters.scholarships) {
-    filtered = filtered.filter((c) => c.financialAidAvailable);
-  }
-
-  if (filters.sortBy) {
-    if (filters.sortBy === 'name') {
-      filtered.sort((a, b) => a.name.localeCompare(b.name));
-    }
-    // Default sort is by mock data order, which is like a pre-set ranking
-  }
-
-  return filtered;
-}
+import { mockColleges } from '@/data/mock-colleges';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
+    const supabase = createClient();
 
     const keyword = searchParams.get('keyword')?.toLowerCase();
     const countryParam = searchParams.get('country');
@@ -67,42 +16,89 @@ export async function GET(request: NextRequest) {
     const minCGPAStr = searchParams.get('minCGPA');
     const sortBy = searchParams.get('sortBy') || 'worldranking';
     const scholarshipsParam = searchParams.get('scholarships');
+    
+    let query = supabase.from('University').select('*');
+
+    if (keyword) {
+      // Assuming 'name' and 'subjects' are columns you want to search.
+      // Supabase's `textSearch` is often better for this but needs setup.
+      // Using `or` for broad matching.
+      query = query.or(`name.ilike.%${keyword}%,subjects.cs.{"${keyword}"}`);
+    }
+    
+    if (countryParam && countryParam !== 'Other' && countryParam !== 'All Countries') {
+      query = query.eq('country', countryParam);
+    }
+    
+    if (studyLevelParam) {
+      query = query.contains('studylevels', [studyLevelParam]);
+    }
+
+    if (subjectParam) {
+      query = query.contains('subjects', [subjectParam]);
+    }
 
     const minCGPA = minCGPAStr ? parseFloat(minCGPAStr) : undefined;
-    const scholarships = scholarshipsParam === 'true';
+    if (minCGPA) {
+        query = query.gte('mincgpa', minCGPA);
+    }
 
-    // Using mock data as a fallback
-    const filteredColleges = filterColleges(mockColleges, {
-      keyword,
-      country: countryParam || undefined,
-      studyLevel: studyLevelParam || undefined,
-      subject: subjectParam || undefined,
-      minCGPA,
-      scholarships,
-      sortBy,
-    });
-    
-    const transformedData: UniversityAPIResponse[] = filteredColleges.map(college => ({
-      id: college.id,
-      name: college.name,
-      country: college.country,
-      location: college.location,
-      // The mock data doesn't have all the fields from the DB, so we map what we have.
-      studylevels: [], // Not available in mock data
-      subjects: college.popularPrograms,
-      mincgpa: undefined, // Not available in mock data
-      scholarships: college.financialAidAvailable,
-      worldranking: college.ranking ? parseInt(college.ranking.replace(/[^0-9]/g, ''), 10) || undefined : undefined,
-      webpages: college.website ? [college.website] : [],
-      imageUrl: college.imageUrl,
-      ranking_description: college.ranking,
+    if (scholarshipsParam === 'true') {
+        query = query.eq('scholarships', true);
+    }
+
+    if (sortBy) {
+        const ascending = sortBy !== 'worldranking'; // worldranking is better descending
+        query = query.order(sortBy, { ascending });
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error('Supabase query error:', error);
+      // Fallback to mock data on Supabase error
+      return NextResponse.json({ data: mockColleges.map(transformCollegeToAPIResponse) });
+    }
+
+    const transformedData: UniversityAPIResponse[] = data.map(uni => ({
+      id: uni.id,
+      name: uni.name,
+      country: uni.country,
+      location: uni.stateprovince,
+      studylevels: uni.studylevels,
+      subjects: uni.subjects,
+      mincgpa: uni.mincgpa,
+      scholarships: uni.scholarships,
+      worldranking: uni.worldranking,
+      webpages: uni.webpages,
+      imageUrl: uni.university_logo,
+      ranking_description: uni.ranking_description,
     }));
-
+    
     return NextResponse.json({ data: transformedData });
 
   } catch (e: any) {
     console.error('Unexpected error in /api/universities route:', e);
     const detailMessage = typeof e.message === 'string' ? e.message : String(e);
-    return NextResponse.json({ error: 'An unexpected server error occurred.', details: detailMessage }, { status: 500 });
+    // Fallback to mock data on any unexpected error
+    return NextResponse.json({ data: mockColleges.map(transformCollegeToAPIResponse) }, { status: 200 });
   }
+}
+
+// Helper to transform mock data to the API response shape
+function transformCollegeToAPIResponse(college: College): UniversityAPIResponse {
+    return {
+      id: college.id,
+      name: college.name,
+      country: college.country,
+      location: college.location,
+      studylevels: [], // Mock data doesn't have this
+      subjects: college.popularPrograms,
+      mincgpa: undefined, // Mock data doesn't have this
+      scholarships: college.financialAidAvailable,
+      worldranking: college.ranking ? parseInt(college.ranking.replace(/[^0-9]/g, ''), 10) || undefined : undefined,
+      webpages: college.website ? [college.website] : [],
+      imageUrl: college.imageUrl,
+      ranking_description: college.ranking,
+    };
 }

@@ -2,12 +2,14 @@
 'use client';
 
 import React, { useState } from 'react';
+import { createClient } from '@/lib/supabase/client';
 
 function Newsletter() {
   const [email, setEmail] = useState('');
   const [isChecked, setIsChecked] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
+  const supabase = createClient();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,12 +37,15 @@ function Newsletter() {
       setStatus('loading');
       setMessage('');
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Simulate a potential error for already subscribed emails
-      if (email === 'already@subscribed.com') {
-          throw new Error('This email is already subscribed to our newsletter.');
+      // Insert into Supabase 'newsletter_subscriptions' table
+      const { error } = await supabase.from('newsletter_subscriptions').insert({ email });
+      
+      if (error) {
+        // Handle potential duplicate email error (23505 is PostgreSQL's unique_violation code)
+        if (error.code === '23505') {
+            throw new Error('This email is already subscribed.');
+        }
+        throw error;
       }
 
       setStatus('success');
@@ -49,7 +54,7 @@ function Newsletter() {
       setIsChecked(false);
     } catch (error: any) {
       setStatus('error');
-      setMessage(error.message);
+      setMessage(error.message || "An error occurred. Please try again.");
     }
   };
 

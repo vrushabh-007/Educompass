@@ -6,6 +6,7 @@ import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import Image from 'next/image';
+import { createClient } from '@/lib/supabase/client';
 
 interface UniversityInfo {
   name: string;
@@ -17,71 +18,33 @@ interface UniversityInfo {
 function UniversityLogos() {
   const [universities, setUniversities] = useState<UniversityInfo[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Map of university names to their logo URLs and websites
-  const universityData: Record<string, { logo: string; website: string; country: string; }> = {
-    'University of Cambridge': {
-      logo: 'https://picsum.photos/seed/cambridge-logo/100/100',
-      website: 'https://www.cam.ac.uk/',
-      country: 'United Kingdom'
-    },
-    'ETH Zurich': {
-      logo: 'https://picsum.photos/seed/eth-logo/100/100',
-      website: 'https://ethz.ch/',
-      country: 'Switzerland'
-    },
-    'Harvard University': {
-      logo: 'https://picsum.photos/seed/harvard-logo/100/100',
-      website: 'https://www.harvard.edu/',
-      country: 'USA'
-    },
-    'Massachusetts Institute of Technology': {
-      logo: 'https://picsum.photos/seed/mit-logo/100/100',
-      website: 'https://www.mit.edu/',
-      country: 'USA'
-    },
-    'National University of Singapore': {
-      logo: 'https://picsum.photos/seed/nus-logo/100/100',
-      website: 'https://www.nus.edu.sg/',
-      country: 'Singapore'
-    },
-    'University of Oxford': {
-      logo: 'https://picsum.photos/seed/oxford-logo/100/100',
-      website: 'https://www.ox.ac.uk/',
-      country: 'United Kingdom'
-    },
-    'Princeton University': {
-      logo: 'https://picsum.photos/seed/princeton-logo/100/100',
-      website: 'https://www.princeton.edu/',
-      country: 'USA'
-    },
-    'Stanford University': {
-      logo: 'https://picsum.photos/seed/stanford-logo/100/100',
-      website: 'https://www.stanford.edu/',
-      country: 'USA'
-    },
-    'University of Tokyo': {
-      logo: 'https://picsum.photos/seed/tokyo-logo/100/100',
-      website: 'https://www.u-tokyo.ac.jp/',
-      country: 'Japan'
-    },
-    'Yale University': {
-      logo: 'https://picsum.photos/seed/yale-logo/100/100',
-      website: 'https://www.yale.edu/',
-      country: 'USA'
-    }
-  };
+  const supabase = createClient();
 
   useEffect(() => {
-    const loadedUniversities = Object.keys(universityData).map(name => ({
-        name,
-        country: universityData[name].country,
-        logo: universityData[name].logo,
-        website: universityData[name].website,
-    }));
-    setUniversities(loadedUniversities);
-    setLoading(false);
-  }, []); // universityData is stable, no need to add as dep
+    const fetchUniversities = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('University')
+        .select('name, country, university_logo, webpages')
+        .limit(10); // Fetch a few for the carousel
+
+      if (error) {
+        console.error("Error fetching universities for logos:", error);
+        setUniversities([]);
+      } else if (data) {
+        const loadedUniversities = data.map(uni => ({
+          name: uni.name,
+          country: uni.country,
+          logo: uni.university_logo?.[0] || `https://picsum.photos/seed/${uni.name}/100/100`, // Use placeholder if logo is missing
+          website: uni.webpages?.[0] || '#',
+        }));
+        setUniversities(loadedUniversities);
+      }
+      setLoading(false);
+    };
+
+    fetchUniversities();
+  }, [supabase]);
 
   const settings = {
     dots: false,
@@ -180,6 +143,7 @@ function UniversityLogos() {
                           height={100} 
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           data-ai-hint="university logo"
+                          onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/fallback-${uni.name}/100/100`; }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center bg-muted/30 rounded-lg">
