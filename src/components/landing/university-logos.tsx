@@ -36,7 +36,7 @@ function UniversityLogos() {
       setLoading(true);
       const { data, error } = await supabase
         .from('University')
-        .select('name, country, university_logo, webpages')
+        .select('name, country, "university-logo", webpages')
         .limit(10); // Fetch a few for the carousel
 
       if (error || !data || data.length === 0) {
@@ -46,7 +46,7 @@ function UniversityLogos() {
         const loadedUniversities = data.map(uni => ({
           name: uni.name,
           country: uni.country,
-          logo: uni.university_logo?.[0] || `https://picsum.photos/seed/${uni.name}/100/100`, // Use placeholder if logo is missing
+          logo: uni['university-logo'] || `https://picsum.photos/seed/${uni.name}/100/100`, // Use placeholder if logo is missing
           website: uni.webpages?.[0] || '#',
         }));
         setUniversities(loadedUniversities);
