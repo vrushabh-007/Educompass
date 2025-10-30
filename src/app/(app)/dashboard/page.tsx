@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, University, Brain, Search, BarChart3, FileText } from "lucide-react";
+import { ArrowRight, University, Brain, Search, BarChart3, FileText, FileSignature } from "lucide-react";
 import { mockColleges } from "@/data/mock-colleges"; // Example data
 import type { College, StudentProfile } from "@/lib/types";
 import Image from "next/image";
@@ -150,12 +150,12 @@ export default function DashboardPage() {
               </CardHeader>
             </Card>
           </Link>
-          <Link href="/analytics-placeholder" className="block"> {/* Replace with actual analytics page */}
+          <Link href="/sop-assistant" className="block">
             <Card className="h-full hover:bg-muted/50 transition-colors shadow-sm">
               <CardHeader>
-                <BarChart3 className="h-8 w-8 text-accent mb-2" />
-                <CardTitle>Student Analytics</CardTitle>
-                <CardDescription>Visualize your progress (Coming Soon).</CardDescription>
+                <FileSignature className="h-8 w-8 text-accent mb-2" />
+                <CardTitle>SOP & Essay Assistant</CardTitle>
+                <CardDescription>Craft your perfect application essay.</CardDescription>
               </CardHeader>
             </Card>
           </Link>
