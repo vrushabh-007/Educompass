@@ -1,7 +1,60 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
-import db from '@/lib/db';
-import type { UniversityAPIResponse } from '@/lib/types';
+import { mockColleges } from '@/data/mock-colleges';
+import type { College, UniversityAPIResponse } from '@/lib/types';
+
+// This function simulates filtering on the mock data, similar to what a database would do.
+function filterColleges(
+  colleges: College[],
+  filters: {
+    keyword?: string;
+    country?: string;
+    studyLevel?: string;
+    subject?: string;
+    minCGPA?: number;
+    scholarships?: boolean;
+    sortBy?: string;
+  }
+): College[] {
+  let filtered = colleges;
+
+  if (filters.keyword) {
+    const keyword = filters.keyword.toLowerCase();
+    filtered = filtered.filter(
+      (c) =>
+        c.name.toLowerCase().includes(keyword) ||
+        c.location.toLowerCase().includes(keyword) ||
+        c.popularPrograms?.some(p => p.toLowerCase().includes(keyword))
+    );
+  }
+
+  if (filters.country && filters.country !== 'Other' && filters.country !== 'All Countries') {
+    filtered = filtered.filter((c) => c.country === filters.country);
+  }
+
+  // Note: Mock data doesn't have study levels, so this filter won't have an effect.
+  // if (filters.studyLevel) { ... }
+
+  if (filters.subject) {
+    filtered = filtered.filter((c) => c.popularPrograms?.includes(filters.subject!));
+  }
+  
+  // Note: Mock data doesn't have min CGPA, so this filter won't have an effect.
+  // if (filters.minCGPA) { ... }
+
+  if (filters.scholarships) {
+    filtered = filtered.filter((c) => c.financialAidAvailable);
+  }
+
+  if (filters.sortBy) {
+    if (filters.sortBy === 'name') {
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+    // Default sort is by mock data order, which is like a pre-set ranking
+  }
+
+  return filtered;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,70 +68,34 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'worldranking';
     const scholarshipsParam = searchParams.get('scholarships');
 
-    let query = 'SELECT * FROM universities';
-    const queryParams: any[] = [];
-    let whereClauses: string[] = [];
+    const minCGPA = minCGPAStr ? parseFloat(minCGPAStr) : undefined;
+    const scholarships = scholarshipsParam === 'true';
 
-    if (keyword) {
-      queryParams.push(`%${keyword}%`);
-      const keywordClauses = `(name ILIKE $${queryParams.length} OR location ILIKE $${queryParams.length} OR EXISTS (SELECT 1 FROM unnest(subjects) AS s WHERE s ILIKE $${queryParams.length}))`;
-      whereClauses.push(keywordClauses);
-    }
+    // Using mock data as a fallback
+    const filteredColleges = filterColleges(mockColleges, {
+      keyword,
+      country: countryParam || undefined,
+      studyLevel: studyLevelParam || undefined,
+      subject: subjectParam || undefined,
+      minCGPA,
+      scholarships,
+      sortBy,
+    });
     
-    if (countryParam && countryParam !== 'Other' && countryParam !== 'All Countries' && countryParam !== '') {
-        queryParams.push(countryParam);
-        whereClauses.push(`country = $${queryParams.length}`);
-    }
-
-    if (studyLevelParam && studyLevelParam !== '' && studyLevelParam !== 'All Levels') {
-        queryParams.push(studyLevelParam);
-        whereClauses.push(`$${queryParams.length} = ANY(studylevels)`);
-    }
-
-    if (subjectParam && subjectParam !== '' && subjectParam !== 'All Subjects') {
-        queryParams.push(subjectParam);
-        whereClauses.push(`$${queryParams.length} = ANY(subjects)`);
-    }
-
-    if (minCGPAStr) {
-        const minCGPA = parseFloat(minCGPAStr);
-        if (!isNaN(minCGPA) && minCGPA !== 7.0) {
-            queryParams.push(minCGPA);
-            whereClauses.push(`mincgpa >= $${queryParams.length}`);
-        }
-    }
-
-    if (scholarshipsParam === 'true') {
-        whereClauses.push('scholarships = true');
-    }
-
-    if (whereClauses.length > 0) {
-        query += ' WHERE ' + whereClauses.join(' AND ');
-    }
-
-    let orderByClause = ' ORDER BY worldranking ASC NULLS LAST';
-    if (sortBy === 'name') {
-        orderByClause = ' ORDER BY name ASC';
-    } else if (sortBy === 'mincgpa') {
-        orderByClause = ' ORDER BY mincgpa ASC NULLS LAST';
-    }
-    query += orderByClause;
-
-    const result = await db.query(query, queryParams);
-
-    const transformedData: UniversityAPIResponse[] = result.rows.map(row => ({
-      id: row.id,
-      name: row.name,
-      country: row.country,
-      location: row.stateprovince,
-      studylevels: row.studylevels,
-      subjects: row.subjects,
-      mincgpa: row.mincgpa,
-      scholarships: row.scholarships,
-      worldranking: row.worldranking,
-      webpages: row.webpages,
-      imageUrl: row.university_logo, // mapped from university-logo
-      ranking_description: row.ranking_description
+    const transformedData: UniversityAPIResponse[] = filteredColleges.map(college => ({
+      id: college.id,
+      name: college.name,
+      country: college.country,
+      location: college.location,
+      // The mock data doesn't have all the fields from the DB, so we map what we have.
+      studylevels: [], // Not available in mock data
+      subjects: college.popularPrograms,
+      mincgpa: undefined, // Not available in mock data
+      scholarships: college.financialAidAvailable,
+      worldranking: college.ranking ? parseInt(college.ranking.replace(/[^0-9]/g, ''), 10) || undefined : undefined,
+      webpages: college.website ? [college.website] : [],
+      imageUrl: college.imageUrl,
+      ranking_description: college.ranking,
     }));
 
     return NextResponse.json({ data: transformedData });
@@ -89,4 +106,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'An unexpected server error occurred.', details: detailMessage }, { status: 500 });
   }
 }
-
