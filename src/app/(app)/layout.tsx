@@ -32,18 +32,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { AppLogo } from "@/components/shared/app-logo";
 import React, { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"; 
-import imageData from '@/lib/placeholder-images.json';
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-
-// Mock user data, replace with actual auth state
-const MOCK_USER = {
-  name: "Jane Doe",
-  email: "jane.doe@example.com",
-  avatar: imageData['user-avatars']['jane-doe'],
-  role: "student", // or "admin"
-};
+import { createClient } from "@/lib/supabase/client";
+import type { User } from "@supabase/supabase-js";
 
 interface NavItem {
   href: string;
@@ -66,18 +59,43 @@ const navItems: NavItem[] = [
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [user, setUser] = useState<typeof MOCK_USER | null>(null);
+  const router = useRouter();
+  const supabase = createClient();
+
+  const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<any>(null);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching user data
-    setUser(MOCK_USER);
-  }, []);
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        // Assuming a 'profiles' table exists with user details
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        setProfile(userProfile || { full_name: user.email, avatar_url: '' });
+      } else {
+         router.push('/login');
+      }
+      setLoading(false);
+    };
+    fetchUser();
+  }, [supabase, router]);
 
-  const filteredNavItems = navItems.filter(item => user && item.roles.includes(user.role as 'student' | 'admin'));
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/');
+  };
 
-  if (!user) {
-    // Optional: Add a loading skeleton or redirect to login
+  const userRole = profile?.role || 'student'; // Default to 'student' role
+  const filteredNavItems = navItems.filter(item => item.roles.includes(userRole));
+
+  if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading...</p>
@@ -150,27 +168,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </Sheet>
           <div className="w-full flex-1">
             {/* Optional: Global Search Bar */}
-            {/* <form>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search colleges, courses..."
-                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                />
-              </div>
-            </form> */}
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="icon" className="rounded-full">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={user.avatar} alt={user.name} className="rounded-full h-8 w-8" data-ai-hint="user avatar" />
+                <img src={profile?.avatar_url || `https://api.dicebear.com/8.x/initials/svg?seed=${profile?.full_name || user.email}`} alt={profile?.full_name || 'User Avatar'} className="rounded-full h-8 w-8" data-ai-hint="user avatar" />
                 <span className="sr-only">Toggle user menu</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{user.name}</DropdownMenuLabel>
+              <DropdownMenuLabel>{profile?.full_name || user.email}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/my-profile" className="cursor-pointer">Profile</Link>
@@ -179,9 +187,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                 <Link href="/settings" className="cursor-pointer">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                 {/* TODO: Implement actual logout */}
-                <Link href="/" className="cursor-pointer">Logout</Link>
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+                 Logout
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
