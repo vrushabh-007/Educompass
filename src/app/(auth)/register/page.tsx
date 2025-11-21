@@ -1,50 +1,57 @@
+
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { AppLogo } from "@/components/shared/app-logo";
-import { createClient } from '@/lib/supabase/client';
-
-const GoogleIcon = () => (
-  <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
-    <path
-      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-      fill="#4285F4"
-    />
-    <path
-      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-      fill="#34A853"
-    />
-    <path
-      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-      fill="#FBBC05"
-    />
-    <path
-      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-      fill="#EA4335"
-    />
-  </svg>
-);
-
+import { createClient } from "@/lib/supabase/client";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function RegisterPage() {
   const supabase = createClient();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleGoogleLogin = async () => {
-    const redirectTo = `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`;
-    await supabase.auth.signInWithOAuth({
-      provider: 'google',
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
       options: {
-        redirectTo,
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
       },
     });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setSuccess("Success! Please check your email to confirm your account.");
+    }
+    setLoading(false);
   };
 
   return (
     <Card className="w-full max-w-md shadow-xl">
       <CardHeader className="space-y-1 text-center">
-         <div className="mx-auto mb-4">
+        <div className="mx-auto mb-4">
           <AppLogo />
         </div>
         <CardTitle className="text-2xl">Create an Account</CardTitle>
@@ -52,18 +59,57 @@ export default function RegisterPage() {
           Join EDUCOMPASS to find your dream college.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Button onClick={handleGoogleLogin} className="w-full" variant="outline">
-          <GoogleIcon />
-          Sign up with Google
-        </Button>
-        <div className="mt-6 text-center text-sm">
-          Already have an account?{" "}
-          <Link href="/login" className="underline text-primary hover:text-primary/80">
-            Login
-          </Link>
-        </div>
-      </CardContent>
+      <form onSubmit={handleSignUp}>
+        <CardContent className="space-y-4">
+          {error && (
+            <Alert variant="destructive">
+              <AlertTitle>Signup Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          {success && (
+            <Alert variant="default" className="bg-green-100 dark:bg-green-900 border-green-300 dark:border-green-700">
+              <AlertTitle>Success</AlertTitle>
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
+          )}
+           <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="m@example.com"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="••••••••"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="flex flex-col gap-4">
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Creating account..." : "Sign Up"}
+          </Button>
+          <div className="text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/login" className="underline text-primary hover:text-primary/80">
+              Login
+            </Link>
+          </div>
+        </CardFooter>
+      </form>
     </Card>
   );
 }
