@@ -8,30 +8,27 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare, Sparkles } from 'lucide-react';
 
-const API_URL = "https://6b6ef45acb16.ngrok-free.app/chat";
+// ⚠️ REPLACE THIS every time you restart Colab!
+const COLAB_API_URL = "https://6b6ef45acb16.ngrok-free.app"; 
 
 export default function ConsultantPage() {
     const [advice, setAdvice] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    async function getCollegeAdvice() {
+    async function sendMessageToAI(userText: string) {
         setIsLoading(true);
         setError(null);
         setAdvice('');
-
         try {
-            // In a real app, this would be dynamically pulled from the user's profile
-            const studentProfile = "GPA: 3.5, GRE: 320, Budget: 30k, Major: Data Science";
-            
-            const response = await fetch(API_URL, {
+            const response = await fetch(`${COLAB_API_URL}/chat`, {
                 method: "POST",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
-                    // ngrok-skip-browser-warning header might be needed if you get ngrok interstitial pages
+                    // This header is required to bypass the ngrok browser warning page
                     "ngrok-skip-browser-warning": "true"
                 },
-                body: JSON.stringify({ message: studentProfile })
+                body: JSON.stringify({ message: userText })
             });
 
             if (!response.ok) {
@@ -46,13 +43,22 @@ export default function ConsultantPage() {
                 throw new Error("Invalid response format from the advisor API.");
             }
 
-        } catch (err: any) {
-            console.error("Error fetching college advice:", err);
-            setError(err.message || "An unexpected error occurred. Please try again later.");
+        } catch (error: any) {
+            console.error("Error connecting to AI:", error);
+            const errorMessage = "⚠️ Detailed Analysis Unavailable: The AI Advisor is currently offline. Please check the Colab server connection.";
+            setError(errorMessage);
+            setAdvice(errorMessage); // Also set advice to show the error in the main card
         } finally {
             setIsLoading(false);
         }
     }
+    
+    function handleGetAdviceClick() {
+        // In a real app, this would be dynamically pulled from the user's profile
+        const studentProfile = "GPA: 3.5, GRE: 320, Budget: 30k, Major: Data Science";
+        sendMessageToAI(studentProfile);
+    }
+
 
     return (
         <div className="container mx-auto py-8">
@@ -72,7 +78,7 @@ export default function ConsultantPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
-                    <Button onClick={getCollegeAdvice} disabled={isLoading} size="lg">
+                    <Button onClick={handleGetAdviceClick} disabled={isLoading} size="lg">
                         {isLoading ? "Consulting AI..." : "Get AI College Advice"}
                     </Button>
                 </CardContent>
@@ -93,16 +99,16 @@ export default function ConsultantPage() {
                 </Card>
             )}
 
-            {error && (
+            {error && !isLoading && (
                 <div className="max-w-2xl mx-auto mt-8">
                     <Alert variant="destructive">
-                        <AlertTitle>Error</AlertTitle>
+                        <AlertTitle>Connection Error</AlertTitle>
                         <AlertDescription>{error}</AlertDescription>
                     </Alert>
                 </div>
             )}
 
-            {advice && !isLoading && (
+            {advice && !isLoading && !error && (
                 <Card className="max-w-2xl mx-auto mt-8 shadow-lg bg-muted/50">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
