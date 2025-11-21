@@ -31,17 +31,23 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
+    
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      if (error.message === 'Email not confirmed') {
+        setError("Email not confirmed. Please check your inbox for the confirmation link.");
+      } else {
+        setError(error.message);
+      }
+    } else {
       router.push("/dashboard");
       router.refresh(); // Force a refresh to update the layout
-    } catch (error: any) {
-      setError(error.message);
     }
+
     setLoading(false);
   };
 
