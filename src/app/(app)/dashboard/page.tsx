@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -10,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, University, Brain, Search, BarChart3, FileText, FileSignature } from "lucide-react";
+import { ArrowRight, University, Brain, Search, BarChart3, FileText, FileSignature, MessageSquare } from "lucide-react";
 import { mockColleges } from "@/data/mock-colleges"; // Example data
 import type { College, StudentProfile } from "@/lib/types";
 import Image from "next/image";
@@ -150,12 +151,12 @@ export default function DashboardPage() {
               </CardHeader>
             </Card>
           </Link>
-          <Link href="/sop-assistant" className="block">
+          <Link href="/consultant" className="block">
             <Card className="h-full hover:bg-muted/50 transition-colors shadow-sm">
               <CardHeader>
-                <FileSignature className="h-8 w-8 text-accent mb-2" />
-                <CardTitle>SOP & Essay Assistant</CardTitle>
-                <CardDescription>Craft your perfect application essay.</CardDescription>
+                <MessageSquare className="h-8 w-8 text-accent mb-2" />
+                <CardTitle>AI Consultant</CardTitle>
+                <CardDescription>Get professional advice.</CardDescription>
               </CardHeader>
             </Card>
           </Link>
