@@ -7,56 +7,67 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare, Sparkles } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
-// ⚠️ REPLACE THIS every time you restart Colab!
-const COLAB_API_URL = "https://6b6ef45acb16.ngrok-free.app"; 
+const AI_API_URL = "https://35facbf6d59f.ngrok-free.app"; 
 
 export default function ConsultantPage() {
     const [advice, setAdvice] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [userInput, setUserInput] = useState('');
 
     async function sendMessageToAI(userText: string) {
         setIsLoading(true);
         setError(null);
         setAdvice('');
         try {
-            const response = await fetch(`${COLAB_API_URL}/chat`, {
+            const response = await fetch(AI_API_URL, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     // This header is required to bypass the ngrok browser warning page
                     "ngrok-skip-browser-warning": "true"
                 },
-                body: JSON.stringify({ message: userText })
+                body: JSON.stringify({
+                    messages: [
+                        { role: "system", content: "You are a professional College Advisor." },
+                        { role: "user", content: userText }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 150
+                })
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
+                 const errorText = await response.text();
                 throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
             }
 
             const data = await response.json();
-            if (data.reply) {
-                setAdvice(data.reply);
+            if (data.choices && data.choices[0] && data.choices[0].message) {
+                setAdvice(data.choices[0].message.content);
             } else {
                 throw new Error("Invalid response format from the advisor API.");
             }
 
         } catch (error: any) {
             console.error("Error connecting to AI:", error);
-            const errorMessage = "⚠️ Detailed Analysis Unavailable: The AI Advisor is currently offline. Please check the Colab server connection.";
+            const errorMessage = "⚠️ The advisor is currently unavailable. Please check the server connection.";
             setError(errorMessage);
-            setAdvice(errorMessage); // Also set advice to show the error in the main card
+            setAdvice(errorMessage); 
         } finally {
             setIsLoading(false);
         }
     }
     
     function handleGetAdviceClick() {
-        // In a real app, this would be dynamically pulled from the user's profile
-        const studentProfile = "GPA: 3.5, GRE: 320, Budget: 30k, Major: Data Science";
-        sendMessageToAI(studentProfile);
+        if (!userInput.trim()) {
+            setError("Please enter your requirements before getting advice.");
+            return;
+        }
+        sendMessageToAI(userInput);
     }
 
 
@@ -66,7 +77,7 @@ export default function ConsultantPage() {
                 <MessageSquare className="mx-auto h-16 w-16 text-primary mb-3" />
                 <h1 className="text-4xl font-bold tracking-tight">Professional AI Consultant</h1>
                 <p className="text-lg text-muted-foreground mt-2 max-w-3xl mx-auto">
-                    Get personalized advice from our professional AI college consultant based on a sample student profile.
+                    Get personalized advice from our professional AI college consultant by providing your requirements below.
                 </p>
             </div>
 
@@ -74,11 +85,21 @@ export default function ConsultantPage() {
                 <CardHeader>
                     <CardTitle>Get Instant Advice</CardTitle>
                     <CardDescription>
-                        Click the button below to send a sample student's profile (GPA: 3.5, GRE: 320, Budget: $30k, Major: Data Science) to the AI consultant.
+                        Enter your academic profile, preferred college type, or any other requirements, then click the button to get AI-powered advice.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="text-center">
-                    <Button onClick={handleGetAdviceClick} disabled={isLoading} size="lg">
+                <CardContent className="space-y-4">
+                     <div className="grid w-full gap-1.5">
+                      <Label htmlFor="user-requirements">Your Requirements</Label>
+                      <Textarea 
+                        placeholder="e.g., GPA: 3.8, looking for a public research university in California with a strong computer science program." 
+                        id="user-requirements"
+                        value={userInput}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        rows={4}
+                      />
+                    </div>
+                    <Button onClick={handleGetAdviceClick} disabled={isLoading} size="lg" className="w-full">
                         {isLoading ? "Consulting AI..." : "Get AI College Advice"}
                     </Button>
                 </CardContent>
@@ -108,7 +129,7 @@ export default function ConsultantPage() {
                 </div>
             )}
 
-            {advice && !isLoading && !error && (
+            {advice && !isLoading && (
                 <Card className="max-w-2xl mx-auto mt-8 shadow-lg bg-muted/50">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
