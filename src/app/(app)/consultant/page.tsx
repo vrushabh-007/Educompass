@@ -10,7 +10,7 @@ import { MessageSquare, Sparkles } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
-const AI_API_URL = "https://35facbf6d59f.ngrok-free.app"; 
+const AI_API_URL = "https://0bdf177e3b1a.ngrok-free.app"; 
 
 export default function ConsultantPage() {
     const [advice, setAdvice] = useState<string>('');
