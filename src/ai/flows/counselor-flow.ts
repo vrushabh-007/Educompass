@@ -18,7 +18,7 @@ const CounselorFlowInputSchema = z.array(ChatMessageSchema);
 export type CounselorFlowInput = z.infer<typeof CounselorFlowInputSchema>;
 
 export async function counselorFlow(history: CounselorFlowInput): Promise<string> {
-  const model = ai.model('huggingFace/Micheal324/CollegeAdvisor-RAG');
+  const model = ai.model('gemini-2.0-flash');
 
   const response = await ai.generate({
     model,
