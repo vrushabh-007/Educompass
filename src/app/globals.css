@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  @font-face {
+    font-family: 'GeistSans';
+    src: url('/fonts/GeistVariableVF.woff2') format('woff2-variations'), /* Modern browsers */
+         url('/fonts/GeistVariableVF.ttf') format('truetype-variations'); /* Fallback */
+    font-weight: 100 900; /* Assuming it's a variable font */
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 12 90% 55%; /* Red-orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 12 90% 55%;
+    --radius: 0.5rem;
+
+    --chart-1: 12 90% 55%;
+    --chart-2: 180 40% 50%;
+    --chart-3: 25 85% 60%;
+    --chart-4: 207 68% 53%;
+    --chart-5: 50 70% 55%;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 5.9% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5.9% 10%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 12 80% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 12 80% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'GeistSans', sans-serif;
+  }
+}
+
+@layer utilities {
+  .shadow-text {
+    text-shadow: 1px 1px 3px hsl(var(--background) / 0.5);
+  }
+  .dark .shadow-text {
+     text-shadow: 1px 1px 3px hsl(var(--foreground) / 0.3);
+  }
+}

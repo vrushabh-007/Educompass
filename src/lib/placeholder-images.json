@@ -1,0 +1,26 @@
+{
+  "college-campus": {
+    "mit": "https://picsum.photos/seed/college-mit/800/600",
+    "stanford": "https://picsum.photos/seed/college-stanford/800/600",
+    "iitb": "https://picsum.photos/seed/college-iitb/800/600",
+    "utoronto": "https://picsum.photos/seed/college-utoronto/800/600",
+    "nus": "https://picsum.photos/seed/college-nus/800/600"
+  },
+  "alumni-avatars": {
+    "feynman": "https://picsum.photos/seed/alumni-feynman/200/200",
+    "aldrin": "https://picsum.photos/seed/alumni-aldrin/200/200",
+    "annan": "https://picsum.photos/seed/alumni-annan/200/200",
+    "page": "https://picsum.photos/seed/alumni-page/200/200",
+    "brin": "https://picsum.photos/seed/alumni-brin/200/200",
+    "witherspoon": "https://picsum.photos/seed/alumni-witherspoon/200/200",
+    "nilekani": "https://picsum.photos/seed/alumni-nilekani/200/200",
+    "agrawal": "https://picsum.photos/seed/alumni-agrawal/200/200",
+    "alumni1": "https://picsum.photos/seed/alumni-1/200/200",
+    "alumni2": "https://picsum.photos/seed/alumni-2/200/200",
+    "alumni3": "https://picsum.photos/seed/alumni-3/200/200",
+    "alumni4": "https://picsum.photos/seed/alumni-4/200/200"
+  },
+  "user-avatars": {
+    "jane-doe": "https://picsum.photos/seed/user-avatar/200/200"
+  }
+}
