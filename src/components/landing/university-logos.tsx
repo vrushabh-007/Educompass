@@ -36,9 +36,10 @@ const mockUniversityLogos: UniversityInfo[] = [
 function UniversityLogos() {
   const [universities, setUniversities] = useState<UniversityInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
+
     const fetchUniversities = async () => {
       setLoading(true);
       const { data, error } = await supabase
@@ -73,7 +74,7 @@ function UniversityLogos() {
     };
 
     fetchUniversities();
-  }, [supabase]);
+  }, []);
 
   const settings = {
     dots: false,

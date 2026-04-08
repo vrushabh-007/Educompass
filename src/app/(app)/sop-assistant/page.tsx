@@ -22,7 +22,8 @@ import { provideEssayFeedback } from '@/ai/flows/provide-essay-feedback';
 import type { GenerateSopInput, EssayFeedback } from '@/lib/types';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileSignature, Sparkles, Wand2, BookOpen, List, MessageSquare, Badge } from 'lucide-react';
+import { FileSignature, Sparkles, Wand2, BookOpen, List, MessageSquare } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
 const sopFormSchema = z.object({

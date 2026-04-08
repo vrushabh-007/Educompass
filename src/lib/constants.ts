@@ -21,7 +21,8 @@ export const FINANCIAL_STATUS_OPTIONS = [
   { value: "Scholarship-dependent", label: "Scholarship-dependent" },
 ];
 
-export const EXAM_OPTIONS = ['GRE', 'GMAT', 'TOEFL', 'IELTS', 'SAT', 'ACT'];
+
+
 
 export const MAJORS_SAMPLE = [
   'Engineering', 'Computer Science', 'Business', 'Biology', 'Law', 'Medicine', 'Social Sciences',

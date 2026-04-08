@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { mockColleges } from '@/data/mock-colleges';
-import type { College } from '@/lib/types';
+import type { UniversityAPIResponse } from '@/lib/types';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,16 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogClose,
-} from "@/components/ui/dialog";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -34,30 +23,41 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { PlusCircle, Edit2, Trash2, Search, University, FileDown } from 'lucide-react';
-import { CollegeForm } from '@/components/admin/college-form'; // To be created
+import { Search, University, FileDown, Loader2 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { Pagination, PaginationContent, PaginationEllipsis, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { createClient } from '@/lib/supabase/client';
 
 const ITEMS_PER_PAGE = 10;
 
 export default function ManageCollegesPage() {
-  const [colleges, setColleges] = useState<College[]>([]);
+  const [colleges, setColleges] = useState<UniversityAPIResponse[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingCollege, setEditingCollege] = useState<College | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const supabase = createClient();
 
   useEffect(() => {
-    // Load initial data (in a real app, this would be an API call)
-    setColleges(mockColleges);
+    const fetchColleges = async () => {
+      setLoading(true);
+      const res = await fetch('/api/universities?sortBy=worldranking');
+      if (res.ok) {
+        const { data } = await res.json();
+        setColleges(data || []);
+      } else {
+        toast({ title: "Error", description: "Failed to load colleges from database.", variant: "destructive" });
+      }
+      setLoading(false);
+    };
+    fetchColleges();
   }, []);
 
   const filteredColleges = useMemo(() => {
-    return colleges.filter(college =>
-      college.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      college.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      college.country.toLowerCase().includes(searchTerm.toLowerCase())
+    const lower = searchTerm.toLowerCase();
+    return colleges.filter(c =>
+      c.name.toLowerCase().includes(lower) ||
+      c.country.toLowerCase().includes(lower) ||
+      (c.location || '').toLowerCase().includes(lower)
     );
   }, [colleges, searchTerm]);
 
@@ -69,57 +69,38 @@ export default function ManageCollegesPage() {
   const totalPages = Math.ceil(filteredColleges.length / ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  const handleAddCollege = () => {
-    setEditingCollege(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEditCollege = (college: College) => {
-    setEditingCollege(college);
-    setIsFormOpen(true);
-  };
-
-  const handleDeleteCollege = (collegeId: string) => {
-    // TODO: Implement actual delete logic with API call
-    setColleges(prev => prev.filter(c => c.id !== collegeId));
-    toast({ title: "College Deleted", description: "The college has been removed.", variant: "destructive" });
-  };
-
-  const handleFormSubmit = (collegeData: College) => {
-    if (editingCollege) {
-      // Update existing college
-      setColleges(prev => prev.map(c => c.id === editingCollege.id ? { ...c, ...collegeData } : c));
-      toast({ title: "College Updated", description: `${collegeData.name} has been updated.` });
+  const handleDeleteCollege = async (collegeId: string, collegeName: string) => {
+    const { error } = await supabase.from('University').delete().eq('id', collegeId);
+    if (error) {
+      toast({ title: "Error", description: `Failed to delete ${collegeName}.`, variant: "destructive" });
     } else {
-      // Add new college
-      const newCollege = { ...collegeData, id: String(Date.now()) }; // Simple ID generation
-      setColleges(prev => [newCollege, ...prev]);
-      toast({ title: "College Added", description: `${collegeData.name} has been added.` });
+      setColleges(prev => prev.filter(c => c.id !== collegeId));
+      toast({ title: "College Deleted", description: `${collegeName} has been removed.`, variant: "destructive" });
     }
-    setIsFormOpen(false);
-    setEditingCollege(null);
   };
-  
+
   const handleExportColleges = () => {
-    // Placeholder for CSV export logic
-    const headers = ["ID", "Name", "Location", "Country", "Acceptance Rate", "Website"];
-    const rows = colleges.map(c => [c.id, c.name, c.location, c.country, c.acceptanceRate || 'N/A', c.website || 'N/A'].join(','));
+    const headers = ["ID", "Name", "Location", "Country", "World Ranking", "Min CGPA", "Website"];
+    const rows = colleges.map(c => [
+      c.id, c.name,
+      c.location || 'N/A',
+      c.country,
+      c.worldranking ?? 'N/A',
+      c.mincgpa ?? 'N/A',
+      c.webpages?.[0] || 'N/A'
+    ].join(','));
     const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join("\n");
-    const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
+    link.setAttribute("href", encodeURI(csvContent));
     link.setAttribute("download", "colleges_export.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast({ title: "Colleges Exported", description: "College data has been exported as CSV." });
+    toast({ title: "Exported", description: "College data exported as CSV." });
   };
-
 
   return (
     <div className="space-y-6">
@@ -128,42 +109,22 @@ export default function ManageCollegesPage() {
           <h1 className="text-3xl font-bold tracking-tight flex items-center">
             <University className="mr-3 h-8 w-8 text-primary" /> Manage Colleges
           </h1>
-          <p className="text-muted-foreground">Add, edit, or remove college information from the platform.</p>
+          <p className="text-muted-foreground">
+            {loading ? 'Loading...' : `${filteredColleges.length} universities in the database.`}
+          </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleExportColleges} variant="outline">
-            <FileDown className="mr-2 h-4 w-4" /> Export Colleges
-          </Button>
-          <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={handleAddCollege}>
-                <PlusCircle className="mr-2 h-4 w-4" /> Add New College
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>{editingCollege ? 'Edit College' : 'Add New College'}</DialogTitle>
-                <DialogDescription>
-                  {editingCollege ? 'Update the details of this college.' : 'Fill in the form to add a new college to the database.'}
-                </DialogDescription>
-              </DialogHeader>
-              <CollegeForm
-                onSubmit={handleFormSubmit}
-                initialData={editingCollege}
-                onCancel={() => setIsFormOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+        <Button onClick={handleExportColleges} variant="outline" disabled={loading}>
+          <FileDown className="mr-2 h-4 w-4" /> Export CSV
+        </Button>
       </div>
 
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search colleges by name, location, country..."
+          placeholder="Search by name, location, country..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
           className="pl-10 w-full md:w-1/2 lg:w-1/3"
         />
       </div>
@@ -172,43 +133,45 @@ export default function ManageCollegesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[250px]">Name</TableHead>
-              <TableHead>Location</TableHead>
+              <TableHead className="w-[280px]">Name</TableHead>
               <TableHead>Country</TableHead>
-              <TableHead className="text-center">Acceptance Rate</TableHead>
-              <TableHead className="text-right w-[160px]">Actions</TableHead>
+              <TableHead>Location</TableHead>
+              <TableHead className="text-center">World Ranking</TableHead>
+              <TableHead className="text-center">Min CGPA</TableHead>
+              <TableHead className="text-right w-[120px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {paginatedColleges.length > 0 ? paginatedColleges.map((college) => (
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  <Loader2 className="inline h-5 w-5 animate-spin mr-2" /> Loading universities...
+                </TableCell>
+              </TableRow>
+            ) : paginatedColleges.length > 0 ? paginatedColleges.map((college) => (
               <TableRow key={college.id}>
                 <TableCell className="font-medium">{college.name}</TableCell>
-                <TableCell>{college.location}</TableCell>
                 <TableCell>{college.country}</TableCell>
-                <TableCell className="text-center">{college.acceptanceRate ? `${college.acceptanceRate}%` : 'N/A'}</TableCell>
+                <TableCell>{college.location || '—'}</TableCell>
+                <TableCell className="text-center">{college.worldranking ?? '—'}</TableCell>
+                <TableCell className="text-center">{college.mincgpa ?? '—'}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="ghost" size="icon" onClick={() => handleEditCollege(college)} className="mr-2 hover:text-primary">
-                    <Edit2 className="h-4 w-4" />
-                    <span className="sr-only">Edit</span>
-                  </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                        <span className="sr-only">Delete</span>
+                      <Button variant="ghost" size="sm" className="hover:text-destructive text-xs">
+                        Delete
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete the college
-                          &quot;{college.name}&quot; and remove its data from our servers.
+                          This will permanently delete &quot;{college.name}&quot; from the database.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDeleteCollege(college.id)} className="bg-destructive hover:bg-destructive/90">
+                        <AlertDialogAction onClick={() => handleDeleteCollege(college.id, college.name)} className="bg-destructive hover:bg-destructive/90">
                           Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>
@@ -218,8 +181,8 @@ export default function ManageCollegesPage() {
               </TableRow>
             )) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
-                  No colleges found matching your search criteria.
+                <TableCell colSpan={6} className="h-24 text-center">
+                  No universities found matching your search.
                 </TableCell>
               </TableRow>
             )}
@@ -239,7 +202,7 @@ export default function ManageCollegesPage() {
             </PaginationItem>
             {[...Array(totalPages)].map((_, i) => {
               const pageNum = i + 1;
-               if (totalPages <= 5 || Math.abs(pageNum - currentPage) < 2 || pageNum === 1 || pageNum === totalPages) {
+              if (totalPages <= 5 || Math.abs(pageNum - currentPage) < 2 || pageNum === 1 || pageNum === totalPages) {
                 return (
                   <PaginationItem key={i}>
                     <PaginationLink
@@ -251,8 +214,8 @@ export default function ManageCollegesPage() {
                     </PaginationLink>
                   </PaginationItem>
                 );
-              } else if ( (pageNum === 2 && currentPage > 3) || (pageNum === totalPages -1 && currentPage < totalPages - 2) ) {
-                 return <PaginationEllipsis key={`ellipsis-${pageNum}`} />;
+              } else if ((pageNum === 2 && currentPage > 3) || (pageNum === totalPages - 1 && currentPage < totalPages - 2)) {
+                return <PaginationEllipsis key={`ellipsis-${pageNum}`} />;
               }
               return null;
             })}

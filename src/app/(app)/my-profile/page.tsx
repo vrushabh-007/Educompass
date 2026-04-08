@@ -27,28 +27,7 @@ import { COUNTRIES, FINANCIAL_STATUS_OPTIONS, EDUCATION_LEVELS, MAJORS_SAMPLE } 
 import type { StudentProfile, StudentAcademicScores, StudentExamResults, StudentPreferences } from "@/lib/types";
 import { toast } from "@/hooks/use-toast";
 import { PlusCircle, Trash2, Save, UserCircle2 } from 'lucide-react';
-
-// Mock student data - replace with actual data fetching and state management
-const mockStudentProfileData: StudentProfile = {
-  id: "student123",
-  fullName: "Jane Doe",
-  email: "jane.doe@example.com",
-  educationLevel: "12th",
-  academicScores: { cgpa: 3.8, cgpaScale: 4.0, percentage: 85 },
-  examResults: {
-    toefl: 105,
-    gre: { total: 320 }
-  },
-  preferences: {
-    preferredCountries: ["USA", "Canada"],
-    financialStatus: "Medium",
-    preferredMajors: ["Computer Science"],
-    collegeType: ["Research"]
-  },
-  workExperienceYears: 1,
-  extracurriculars: "Debate club, Hackathon winner",
-  statementOfPurpose: "Dedicated to advancing AI...",
-};
+import { createClient } from '@/lib/supabase/client';
 
 
 const academicScoresSchema = z.object({
@@ -123,12 +102,33 @@ export default function MyProfilePage() {
 
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setStudentProfile(mockStudentProfileData);
-      form.reset(mockStudentProfileData); // Populate form with fetched data
+    const fetchProfile = async () => {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', user.id)
+          .single();
+        const merged: StudentProfile = {
+          id: user.id,
+          fullName: profile?.full_name || '',
+          email: user.email || '',
+          educationLevel: profile?.education_level || 'bachelors',
+          academicScores: profile?.academic_scores || {},
+          examResults: profile?.exam_results || {},
+          preferences: profile?.preferences || { preferredCountries: [], financialStatus: 'Medium', preferredMajors: [] },
+          workExperienceYears: profile?.work_experience_years,
+          extracurriculars: profile?.extracurriculars || '',
+          statementOfPurpose: profile?.statement_of_purpose || '',
+        };
+        setStudentProfile(merged);
+        form.reset(merged);
+      }
       setIsLoading(false);
-    }, 500);
+    };
+    fetchProfile();
   }, [form]);
   
 

@@ -2,7 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { UniversityAPIResponse } from '@/lib/types';
-import { mockColleges } from '@/data/mock-colleges';
+
 
 export async function GET(request: NextRequest) {
   try {
@@ -66,8 +66,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Supabase query error:', error);
-      // Fallback to mock data on Supabase error
-      return NextResponse.json({ data: mockColleges.map(transformCollegeToAPIResponse) });
+      return NextResponse.json({ data: [] }, { status: 200 });
     }
 
     const transformedData: UniversityAPIResponse[] = data.map(uni => ({
@@ -92,19 +91,4 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Helper to transform mock data to the API response shape
-function transformCollegeToAPIResponse(college: any): UniversityAPIResponse {
-    return {
-      id: college.id,
-      name: college.name,
-      country: college.country,
-      location: college.location,
-      studylevels: [], // Mock data doesn't have this
-      subjects: college.popularPrograms,
-      mincgpa: undefined, // Mock data doesn't have this
-      scholarships: college.financialAidAvailable,
-      worldranking: college.ranking ? parseInt(college.ranking.replace(/[^0-9]/g, ''), 10) || undefined : undefined,
-      webpages: college.website ? [college.website] : [],
-      imageUrl: college.imageUrl,
-    };
-}
+

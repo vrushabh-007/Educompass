@@ -2,7 +2,7 @@ import type {Metadata} from 'next';
 // Removed direct import of GeistSans as we'll set it up via @font-face in globals.css
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import { GenkitClientProvider } from '@/components/genkit-client-provider';
+
 import { ThemeProvider } from '@/components/shared/theme-provider';
 
 
@@ -26,10 +26,8 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <GenkitClientProvider>
-            {children}
-            <Toaster />
-          </GenkitClientProvider>
+          {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

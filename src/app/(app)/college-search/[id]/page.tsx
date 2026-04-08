@@ -108,7 +108,7 @@ export default function CollegeDetailPage() {
               src={college.imageUrl}
               alt={`Campus of ${college.name}`}
               fill
-              objectFit="cover"
+              className="object-cover"
               data-ai-hint="college campus scenery"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />

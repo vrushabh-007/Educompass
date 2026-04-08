@@ -3,19 +3,13 @@
 
 import Link from "next/link";
 import {
-  Home,
   Search,
   UserCircle,
-  Settings,
-  LogOut,
-  ListFilter,
-  BookOpen,
   Brain, 
   LayoutDashboard,
   Users,
   University,
   BarChart3,
-  FileText,
   Menu,
   FileSignature,
   UserCheck
@@ -29,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
+
 import { AppLogo } from "@/components/shared/app-logo";
 import React, { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
