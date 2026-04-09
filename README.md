@@ -65,12 +65,12 @@ Recommendation Logic (Scoring + Ranking)
 ```bash
 git clone https://github.com/vrushabh-007/Educompass.git
 cd Educompass
-Run Project
+#Run Project
 Open index.html in your browser
 OR
 Use Live Server (VS Code)
 
-🔬 Novelty (For Research Paper)
+###🔬 Novelty (For Research Paper)
 
 EduCompass uses a hybrid filtering + ranking system:
 
@@ -80,11 +80,11 @@ Efficient search (can extend to:
 Trie-based filtering
 Inverted Indexing
 )
-📌 Scoring Formula
+###📌 Scoring Formula
 
-Score = w1(CGPA Match) + w2(Budget Fit) + w3(Location Preference) + w4(Exam Score Match)
+#Score = w1(CGPA Match) + w2(Budget Fit) + w3(Location Preference) + w4(Exam Score Match)
 
-📈 Future Enhancements
+###📈 Future Enhancements
 
 🤖 AI/ML-based recommendations
 🔐 User login & profile system
@@ -94,7 +94,3 @@ Score = w1(CGPA Match) + w2(Budget Fit) + w3(Location Preference) + w4(Exam Scor
 🌐 Real-time university APIs
 🧪 Testing Strategy
 
-Functional testing of filters
-Performance testing for large datasets
-UI/UX testing
-Data validation
