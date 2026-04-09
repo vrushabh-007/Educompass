@@ -1,96 +1,77 @@
-# 📚 EduCompass – Intelligent University Search & Recommendation System
+# EduCompass – Intelligent University Search & Recommendation System
 
-## 🚀 Overview
-EduCompass is a smart web-based platform designed to help students discover universities based on personalized academic, financial, and eligibility criteria.
-
-It simplifies the decision-making process for:
-- 🎓 After 10th
-- 🎓 After 12th
-- 🎓 Undergraduate → Postgraduate
-- 🌍 Studying Abroad
+## Overview
+EduCompass is an intelligent web platform that assists students in discovering universities tailored to their academic background, financial circumstances, and eligibility. It streamlines decision-making for students at key educational milestones, including post-10th, post-12th, undergraduate to postgraduate transitions, and international studies.
 
 ---
 
-## 🎯 Key Features
+## Key Features
 
-### 🔍 Advanced Search & Filtering
-- Filter by:
-  - CGPA / Percentage
-  - Entrance Exams (GRE, GMAT, TOEFL, etc.)
-  - Budget constraints
-  - Preferred location (India / Abroad)
-- Real-time filtering
-- Scalable for large datasets
+- **Advanced Search & Filtering**
+  - Filter universities by CGPA/percentage, entrance exam scores (GRE, GMAT, TOEFL, etc.), budget, and location (India or abroad).
+  - Real-time, multi-parameter search, designed for scalability.
 
-### 🏫 University Discovery
-- Structured university dataset
-- Easy comparison between universities
-- Clean and intuitive UI
+- **Comprehensive University Database**
+  - Structured datasets for reliable comparison.
+  - User-friendly interface for streamlined exploration.
 
-### 📊 Recommendation System
-- Rule-based + scoring model
-- Personalized suggestions based on:
-  - Academic profile
-  - Budget
-  - Career goals
+- **Personalized Recommendations**
+  - Hybrid filtering and scoring models.
+  - Suggestions based on academic profile, budget, and career objectives.
 
 ---
 
-## 🧠 System Architecture
-Frontend (UI Layer)
-↓
-Search & Filtering Engine
-↓
-University Dataset (JSON / Database)
-↓
-Recommendation Logic (Scoring + Ranking)
+## System Architecture
 
+- **Frontend:** UI Layer (HTML, CSS, JavaScript)
+- **Search & Filtering Engine**
+- **Data:** University Dataset (JSON/MySQL)
+- **Recommendation Logic:** Scoring and ranking algorithms
 
 ---
 
-## ⚙️ Tech Stack
+## Technology Stack
 
-| Layer        | Technology |
-|-------------|-----------|
-| Frontend     | HTML, CSS, JavaScript |
-| Backend (Future Scope) | Django / Python |
-| Database     | JSON / MySQL |
-| Hosting      | Firebase / Web |
+| Layer      | Technology               |
+|------------|--------------------------|
+| Frontend   | HTML, CSS, JavaScript    |
+| Backend    | Django / Python (Planned)|
+| Database   | JSON / MySQL             |
+| Hosting    | Firebase / Web           |
 
 ---
 
-## 🛠️ Installation & Setup
+## Installation & Setup
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/vrushabh-007/Educompass.git
-cd Educompass
-#Run Project
-Open index.html in your browser
-OR
-Use Live Server (VS Code)
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/vrushabh-007/Educompass.git
+   cd Educompass
+   ```
 
-###🔬 Novelty (For Research Paper)
+2. **Launch the Application:**
+   - Open `index.html` in your browser, or
+   - Use VS Code's Live Server extension for a local development environment.
 
-EduCompass uses a hybrid filtering + ranking system:
+---
 
-Multi-parameter filtering
-Weighted scoring model
-Efficient search (can extend to:
-Trie-based filtering
-Inverted Indexing
-)
-###📌 Scoring Formula
+## Research & Technical Novelty
 
-#Score = w1(CGPA Match) + w2(Budget Fit) + w3(Location Preference) + w4(Exam Score Match)
+- Hybrid multi-parameter filtering and ranking.
+- Weighted composite scoring for recommendations:
+  ```
+  SCORE = w1 * (CGPA Match) + w2 * (Budget Fit) + w3 * (Location Preference) + w4 * (Exam Score Match)
+  ```
+- Scalable search architecture (capable of Trie-based filtering, inverted indexing, etc.)
 
-###📈 Future Enhancements
+---
 
-🤖 AI/ML-based recommendations
-🔐 User login & profile system
-📊 Analytics dashboard
-📄 Export reports (PDF)
-💬 AI chatbot for guidance
-🌐 Real-time university APIs
-🧪 Testing Strategy
+## Roadmap
 
+- AI/ML-based recommendation engine
+- User authentication and profile management
+- Analytics dashboards
+- Report export (PDF)
+- Integrated AI chatbot guidance
+- Real-time university data APIs
+- Comprehensive testing strategy
