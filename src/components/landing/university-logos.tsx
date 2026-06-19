@@ -16,30 +16,22 @@ interface UniversityInfo {
 }
 
 const mockUniversityLogos: UniversityInfo[] = [
-  { name: 'UC Berkeley', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/berkeley-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvYmVya2VsZXktbG9nby5wbmciLCJpYXQiOjE3NzU1ODAzMDIsImV4cCI6MTgwNzExNjMwMn0.FKDrapNCV2ppNcIRADzZ1gHoykZWOM5qyqb5ITVP5og', website: 'https://www.berkeley.edu/' },
-  { name: 'California Institute of Technology', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/caltech-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvY2FsdGVjaC1sb2dvLnBuZyIsImlhdCI6MTc3NTU4MDMxOCwiZXhwIjoxODA3MTE2MzE4fQ.iTzPHgyULJ9_49jmDqh3C01jzGQ3QbUFZOU6e0cQ1Uc', website: 'https://www.caltech.edu/' },
-  { name: 'University of Cambridge', country: 'UK', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/cambridge-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvY2FtYnJpZGdlLWxvZ28ucG5nIiwiaWF0IjoxNzc1NTgwMzM1LCJleHAiOjE4MDcxMTYzMzV9.ktckFL5cg1SplHsxVWVDidmRWG_aCSKix_UHTINdcs0', website: 'https://www.cam.ac.uk/' },
-  { name: 'University of Chicago', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/chicago-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvY2hpY2Fnby1sb2dvLnBuZyIsImlhdCI6MTc3NTU4MDM0NiwiZXhwIjoxODA3MTE2MzQ2fQ.akzBEBalKeGGh2SigOviupw9JBzpkTGhl_VPc7eBbl4', website: 'https://www.uchicago.edu/' },
-  { name: 'ETH Zurich', country: 'Switzerland', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/eth-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvZXRoLWxvZ28ucG5nIiwiaWF0IjoxNzc1NTgwMzU3LCJleHAiOjE4MDcxMTYzNTd9.oqeU4SPei-XisvnGTuTXHzeeKDYUKraaAo6t3LHwN2I', website: 'https://ethz.ch/' },
-  { name: 'Harvard University', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/harverd-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvaGFydmVyZC1sb2dvLnBuZyIsImlhdCI6MTc3NTU4MDM2NywiZXhwIjoxODA3MTE2MzY3fQ.GOPFywVPFdDCMiBN1Le7p7zNUPpMWvQd-c4gezc8CgI', website: 'https://www.harvard.edu/' },
-  { name: 'UCL', country: 'UK', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/london-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvbG9uZG9uLWxvZ28ucG5nIiwiaWF0IjoxNzc1NTgwMzkzLCJleHAiOjE4MDcxMTYzOTN9.07Sa9dtYcno8oD2NDJ6dvMGJy--t93ZQuvBV8pdb3-Q', website: 'https://www.ucl.ac.uk/' },
-  { name: 'Massachusetts Institute of Technology', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/mit-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvbWl0LWxvZ28ucG5nIiwiaWF0IjoxNzc1NTgwNDAyLCJleHAiOjE4MDcxMTY0MDJ9.RIkC-86vlEOZqIHZprXEjN9ijnaFr-fzTiTqBrQp92M', website: 'https://web.mit.edu/' },
-  { name: 'National University of Singapore', country: 'Singapore', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/nus-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvbnVzLWxvZ28ucG5nIiwiaWF0IjoxNzc1NTgwNDEyLCJleHAiOjE4MDcxMTY0MTJ9.3T0YT9tU7Q-gxGN3QDqtIjmym0tW8ZQ83mFug13RYeA', website: 'https://nus.edu.sg/' },
-  { name: 'University of Oxford', country: 'UK', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/oxford-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3Mvb3hmb3JkLWxvZ28ucG5nIiwiaWF0IjoxNzc1NTgwNDIyLCJleHAiOjE4MDcxMTY0MjJ9.JCEujEm_kiBSYFqc-89U3oXDRR8UpRNuxEw3j7wQlbE', website: 'https://www.ox.ac.uk/' },
-  { name: 'Princeton University', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/priceton-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvcHJpY2V0b24tbG9nby5wbmciLCJpYXQiOjE3NzU1ODA0MzEsImV4cCI6MTgwNzExNjQzMX0.EfMuKT1m_2C5jJJOqwj-1FOjiEVUyYOF2NYWi7hzKSQ', website: 'https://www.princeton.edu/' },
-  { name: 'Stanford University', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/stanford-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3Mvc3RhbmZvcmQtbG9nby5wbmciLCJpYXQiOjE3NzU1ODA3NDUsImV4cCI6MTgwNzExNjc0NX0.zWjM3ZLO5uBa7EB6r-d--X2frYIeQTXbJhedEAHhOsk', website: 'https://www.stanford.edu/' },
-  { name: 'University of Tokyo', country: 'Japan', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/tokyo-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MvdG9reW8tbG9nby5wbmciLCJpYXQiOjE3NzU1ODA0NTEsImV4cCI6MTgwNzExNjQ1MX0.RXmvSxJ2QPfB7Z81km-HbHpsLO3zPTh8Oo8Tg-vfaSU', website: 'https://www.u-tokyo.ac.jp/' },
-  { name: 'Yale University', country: 'USA', logo: 'https://zcfxvkqzyxxxftmtvwdo.supabase.co/storage/v1/object/sign/universitylogos/logos/yale-logo.png?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV9jMzFiZTQ3Mi03NmE2LTQzMDgtOGM5Ni1mMGFhMmM3NTMyY2UiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJ1bml2ZXJzaXR5bG9nb3MvbG9nb3MveWFsZS1sb2dvLnBuZyIsImlhdCI6MTc3NTU4MDQ2MCwiZXhwIjoxODA3MTE2NDYwfQ.4F3uHVXnavBiUakI0y5b2_NtZ_ECV-ug7471h0UztCY', website: 'https://www.yale.edu/' },
+    { name: 'Massachusetts Institute of Technology', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/mit-logo.png', website: 'https://web.mit.edu/' },
+    { name: 'Stanford University', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/stanford-logo.png', website: 'https://www.stanford.edu/' },
+    { name: 'Harvard University', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/harverd-logo.png', website: 'https://www.harvard.edu/' },
+    { name: 'University of Cambridge', country: 'UK', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/cambridge-logo.png', website: 'https://www.cam.ac.uk/' },
+    { name: 'University of Oxford', country: 'UK', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/oxford-logo.png', website: 'https://www.ox.ac.uk/' },
+    { name: 'California Institute of Technology', country: 'USA', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/caltech-logo.png', website: 'https://www.caltech.edu/' },
+    { name: 'ETH Zurich', country: 'Switzerland', logo: 'https://bbxmsfmikhbvbweaderx.supabase.co/storage/v1/object/public/universitylogos/logos/eth-logo.png', website: 'https://ethz.ch/' },
 ];
 
 
 function UniversityLogos() {
   const [universities, setUniversities] = useState<UniversityInfo[]>([]);
   const [loading, setLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
-    const supabase = createClient();
-
     const fetchUniversities = async () => {
       setLoading(true);
       const { data, error } = await supabase
@@ -51,30 +43,19 @@ function UniversityLogos() {
         console.error("Error fetching universities for logos or no data, falling back to mocks:", error);
         setUniversities(mockUniversityLogos);
       } else if (data) {
-        const loadedUniversities = data.map(uni => {
-          let logoUrl = uni['university-logo'];
-
-          // The database currently holds old broken Supabase project URLs (bbxmsfmikhbvbweaderx)
-          // We map these to our working mock signed URLs if available.
-          if (logoUrl && logoUrl.includes('bbxmsfmikhbvbweaderx.supabase.co')) {
-            const mockUni = mockUniversityLogos.find(m => m.name === uni.name);
-            logoUrl = mockUni?.logo || null;
-          }
-
-          return {
-            name: uni.name,
-            country: uni.country,
-            logo: logoUrl || `https://picsum.photos/seed/${uni.name.replace(/\s+/g, '')}/100/100`,
-            website: uni.webpages?.[0] || '#',
-          };
-        });
+        const loadedUniversities = data.map(uni => ({
+          name: uni.name,
+          country: uni.country,
+          logo: uni['university-logo'] || `https://picsum.photos/seed/${uni.name}/100/100`, // Use placeholder if logo is missing
+          website: uni.webpages?.[0] || '#',
+        }));
         setUniversities(loadedUniversities);
       }
       setLoading(false);
     };
 
     fetchUniversities();
-  }, []);
+  }, [supabase]);
 
   const settings = {
     dots: false,
@@ -83,7 +64,7 @@ function UniversityLogos() {
     slidesToShow: 5,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 0,
+    autoplaySpeed: 0, 
     cssEase: "linear",
     pauseOnHover: true,
     responsive: [
@@ -140,7 +121,7 @@ function UniversityLogos() {
           <Slider {...settings}>
             {universities.map((uni, index) => (
               <div key={`${uni.name}-${index}`} className="px-4 h-full">
-                <a
+                <a 
                   href={uni.website}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -157,17 +138,17 @@ function UniversityLogos() {
                   <div className="aspect-square rounded-xl bg-transparent/20 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 p-6 flex flex-col items-center justify-between border border-border/30 h-full">
                     <div className="w-full h-2/3 flex items-center justify-center mb-3 flex-grow">
                       {uni.logo ? (
-                        <Image
+                        <Image 
                           src={uni.logo}
                           alt={`${uni.name} logo`}
-                          width={100}
-                          height={100}
+                          width={100} 
+                          height={100} 
                           className="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300"
                           data-ai-hint="university logo"
                           priority={false}
-                          onError={(e) => {
-                            e.currentTarget.srcset = '';
-                            e.currentTarget.src = `https://picsum.photos/seed/${uni.name.replace(/\s+/g, '')}/100/100`;
+                          onError={() => {
+                            const fallback = document.createElement('img');
+                            fallback.src = `https://picsum.photos/seed/fallback-${uni.name}/100/100`;
                           }}
                         />
                       ) : (

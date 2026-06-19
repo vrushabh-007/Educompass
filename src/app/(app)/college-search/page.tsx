@@ -3,8 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image'; 
-import type { UniversityAPIResponse } from '@/lib/types'; 
+import Image from 'next/image';
+import type { UniversityAPIResponse } from '@/lib/types';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
@@ -35,7 +35,7 @@ for (const key in logoMap) {
 
 
 const studyLevels = ['bachelors', 'masters', 'phd'];
-const countries = ['USA', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore', 'Germany', 'Australia', 'Other']; 
+const countries = ['USA', 'United Kingdom', 'Switzerland', 'India', 'Canada', 'Singapore', 'Germany', 'Australia', 'Other'];
 const subjects = [
   'Engineering', 'Computer Science', 'Business', 'Biology', 'Law', 'Medicine', 'Social Sciences',
   'Mathematics', 'Arts', 'Humanities', 'Sciences', 'Physics', 'Chemistry', 'Natural Sciences',
@@ -48,7 +48,7 @@ export default function ResultsPage() {
   const router = useRouter();
   const [universities, setUniversities] = useState<UniversityAPIResponse[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [search, setSearch] = useState(() => searchParams.get('keyword') || searchParams.get('searchTerm') || '');
   const [selectedCountry, setSelectedCountry] = useState(() => searchParams.get('country') || searchParams.get('destination') || '');
   const [selectedLevel, setSelectedLevel] = useState(() => searchParams.get('studyLevel') || searchParams.get('educationLevel') || '');
@@ -67,10 +67,10 @@ export default function ResultsPage() {
     if (selectedCountry) apiParams.set('country', selectedCountry);
     if (selectedLevel) apiParams.set('studyLevel', selectedLevel);
     if (selectedSubject) apiParams.set('subject', selectedSubject);
-    if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA); 
+    if (minCGPA && minCGPA !== '7.0') apiParams.set('minCGPA', minCGPA);
     if (includeScholarships) apiParams.set('scholarships', 'true');
     apiParams.set('sortBy', sortBy);
-    
+
     try {
       const res = await fetch(`/api/universities?${apiParams.toString()}`);
       if (!res.ok) {
@@ -90,9 +90,9 @@ export default function ResultsPage() {
 
   useEffect(() => {
     fetchUniversities();
-  }, [fetchUniversities]); 
+  }, [fetchUniversities]);
 
-   useEffect(() => {
+  useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set('keyword', search);
     if (selectedCountry) params.set('country', selectedCountry);
@@ -119,7 +119,7 @@ export default function ResultsPage() {
 
   const handleSearchFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setPage(1); 
+    setPage(1);
     // fetchUniversities will be called by its own useEffect dependency change
   };
 
@@ -132,9 +132,9 @@ export default function ResultsPage() {
     setMinCGPA('7.0');
     setIncludeScholarships(false);
     setPage(1);
-     // fetchUniversities will be called by its own useEffect dependency change
+    // fetchUniversities will be called by its own useEffect dependency change
   };
-  
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-5xl mx-auto mt-8 px-4 sm:px-0">
@@ -182,15 +182,15 @@ export default function ResultsPage() {
               <input
                 id="minCGPAInput"
                 type="number"
-                min="0" 
-                max="10.0" 
+                min="0"
+                max="10.0"
                 step="0.1"
                 value={minCGPA}
                 onChange={e => setMinCGPA(e.target.value)}
                 className="w-20 px-2 py-2 rounded border border-border bg-input text-foreground"
               />
             </div>
-             <div className="flex items-center gap-2 col-span-full sm:col-span-1 md:col-span-1 lg:col-span-1 justify-self-start">
+            <div className="flex items-center gap-2 col-span-full sm:col-span-1 md:col-span-1 lg:col-span-1 justify-self-start">
               <Checkbox
                 id="includeScholarships"
                 checked={includeScholarships}
@@ -216,8 +216,8 @@ export default function ResultsPage() {
               <option value="mincgpa">Min CGPA</option>
             </select>
           </div>
-          <button 
-            className="ml-auto text-sm text-primary underline hover:text-primary/90" 
+          <button
+            className="ml-auto text-sm text-primary underline hover:text-primary/90"
             onClick={handleClearFilters}
           >
             Clear all
@@ -250,60 +250,61 @@ export default function ResultsPage() {
           <div className="col-span-full text-center text-muted-foreground py-10">No universities found. Try adjusting your filters.</div>
         ) : (
           paginatedUniversities.map((uni, idx) => {
-            const isFirstCard = idx === 0 && page === 1; 
+            const isFirstCard = idx === 0 && page === 1;
             const logoSrc = (uni.imageUrl || logoMap[uni.name] || `https://picsum.photos/seed/${uni.id || uni.name.replace(/\s/g, '-')}/56/56`).trimEnd();
             return (
-            <div
-              key={uni.id || uni.name}
-              className={`rounded-xl border p-6 flex flex-col items-start shadow-md transition relative bg-card ${isFirstCard ? 'border-primary shadow-lg' : 'border-border'}`}
-            >
-              <Image
-                src={logoSrc}
-                alt={`${uni.name} logo`}
-                width={56}
-                height={56}
-                className="object-contain mb-3 rounded-lg bg-muted"
-                onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/fallback-${uni.id}/56/56`; }}
-                data-ai-hint="university logo"
-              />
-              <h2 className={`text-lg font-bold mb-1 ${isFirstCard ? 'text-primary' : 'text-primary'}`}>{uni.name}</h2>
-              <div className={`mb-2 text-sm ${isFirstCard ? 'text-foreground/80' : 'text-muted-foreground'}`}>{uni.country}{uni.location ? `, ${uni.location}` : ''}</div>
-              
-              {uni.studylevels && uni.studylevels.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-2">
-                  {uni.studylevels.map((level: string) => (
-                    <span key={level} className={`px-2 py-0.5 rounded-full text-xs font-semibold ${isFirstCard ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-accent/10 text-accent border border-accent/20'}`}>{level}</span>
-                  ))}
-                </div>
-              )}
-              {uni.subjects && uni.subjects.length > 0 && (
-                 <div className="flex flex-wrap gap-1 mb-2">
-                    {uni.subjects.slice(0, 3).map((subj: string) => ( 
-                    <span key={subj} className={`px-1.5 py-0.5 rounded-full text-xs ${isFirstCard ? 'bg-muted text-foreground/80' : 'bg-secondary text-secondary-foreground'}`}>{subj}</span>
-                    ))}
-                 </div>
-              )}
+              <div
+                key={uni.id || uni.name}
+                className={`rounded-xl border p-6 flex flex-col items-start shadow-md transition relative bg-card ${isFirstCard ? 'border-primary shadow-lg' : 'border-border'}`}
+              >
+                <Image
+                  src={logoSrc}
+                  alt={`${uni.name} logo`}
+                  width={56}
+                  height={56}
+                  className="object-contain mb-3 rounded-lg bg-muted"
+                  onError={(e) => { (e.target as HTMLImageElement).src = `https://picsum.photos/seed/fallback-${uni.id}/56/56`; }}
+                  data-ai-hint="university logo"
+                />
+                <h2 className={`text-lg font-bold mb-1 ${isFirstCard ? 'text-primary' : 'text-primary'}`}>{uni.name}</h2>
+                <div className={`mb-2 text-sm ${isFirstCard ? 'text-foreground/80' : 'text-muted-foreground'}`}>{uni.country}{uni.location ? `, ${uni.location}` : ''}</div>
 
-              {uni.mincgpa != null && <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Min CGPA: <span className="font-semibold">{uni.mincgpa}</span></div>}
-              
-              <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Scholarships: <span className={uni.scholarships ? 'text-accent font-semibold' : 'text-destructive font-semibold'}>{uni.scholarships ? 'Available' : 'Not Available'}</span></div>
-              
-              {uni.worldranking != null && (
-                <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>World Ranking: <span className="font-semibold">#{uni.worldranking}</span></div>
-              )}
-              
-              {uni.webpages && uni.webpages.length > 0 && (
-                <Link
-                  href={uni.webpages[0].startsWith('http') ? uni.webpages[0] : `https://${uni.webpages[0]}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`mt-auto pt-3 px-4 py-2 rounded-lg font-semibold transition text-center w-full ${isFirstCard ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
-                >
-                  Visit Website
-                </Link>
-              )}
-            </div>
-          )})
+                {uni.studylevels && uni.studylevels.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {uni.studylevels.map((level: string) => (
+                      <span key={level} className={`px-2 py-0.5 rounded-full text-xs font-semibold ${isFirstCard ? 'bg-primary/20 text-primary border border-primary/30' : 'bg-accent/10 text-accent border border-accent/20'}`}>{level}</span>
+                    ))}
+                  </div>
+                )}
+                {uni.subjects && uni.subjects.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {uni.subjects.slice(0, 3).map((subj: string) => (
+                      <span key={subj} className={`px-1.5 py-0.5 rounded-full text-xs ${isFirstCard ? 'bg-muted text-foreground/80' : 'bg-secondary text-secondary-foreground'}`}>{subj}</span>
+                    ))}
+                  </div>
+                )}
+
+                {uni.mincgpa != null && <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Min CGPA: <span className="font-semibold">{uni.mincgpa}</span></div>}
+
+                <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>Scholarships: <span className={uni.scholarships ? 'text-accent font-semibold' : 'text-destructive font-semibold'}>{uni.scholarships ? 'Available' : 'Not Available'}</span></div>
+
+                {uni.worldranking != null && (
+                  <div className={`text-xs mb-1 ${isFirstCard ? 'text-foreground/70' : 'text-muted-foreground'}`}>World Ranking: <span className="font-semibold">#{uni.worldranking}</span></div>
+                )}
+
+                {uni.webpages && uni.webpages.length > 0 && (
+                  <Link
+                    href={uni.webpages[0].startsWith('http') ? uni.webpages[0] : `https://${uni.webpages[0]}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`mt-auto pt-3 px-4 py-2 rounded-lg font-semibold transition text-center w-full ${isFirstCard ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-primary text-primary-foreground hover:bg-primary/90'}`}
+                  >
+                    Visit Website
+                  </Link>
+                )}
+              </div>
+            )
+          })
         )}
       </div>
 
